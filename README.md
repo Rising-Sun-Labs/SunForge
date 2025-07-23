@@ -26,3 +26,11 @@ This is POC project for Go/Java Backend and ReactJS Frontend
             - Headers: (Authorization, Content-Type)
             - Metadata (Ip, locations etc)
 
+## Step 3: High Level Design with data flow and digram with major components:
+
+
+
+
+
+
+
