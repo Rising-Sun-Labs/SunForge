@@ -8,6 +8,8 @@ https://miro.com/app/board/uXjVJbJmD8o=/
 - Whimsical:
 https://whimsical.com/
 
+https://whimsical.com/notion-replica-QzJNQQLnNus4N5YGdDEpuF
+
 
 ## System design for this app
 ## Step 1. Requirements:
