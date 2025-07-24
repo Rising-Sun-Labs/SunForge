@@ -36,6 +36,7 @@ https://whimsical.com/notion-replica-QzJNQQLnNus4N5YGdDEpuF
 
 ## Step 3: High Level Design with data flow and digram with major components:
 
+<img width="3420" height="2214" alt="image" src="https://github.com/user-attachments/assets/ecf5defe-c3aa-4347-bca5-e2feaf9b3d63" />
 
 
 
