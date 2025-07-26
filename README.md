@@ -1,6 +1,6 @@
 # Notion like replica
 
-This is POC project for Go/Java Backend and ReactJS Frontend
+This is POC project for Go/Java Backend and ReactTS Frontend
 
 
 ## Whiteboard tool used:
