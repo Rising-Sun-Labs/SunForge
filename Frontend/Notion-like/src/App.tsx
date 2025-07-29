@@ -1,8 +1,10 @@
-const App=()=>{
+import React from "react";
+const App:React.FC=()=>{
   return (
-    <h1>
+    <div>
 
-    </h1>
+    </div>
   )
 }
+
 export default App;
