@@ -1,4 +1,10 @@
-# Notion like replica
+# SunForge 
+by Rising Sun Labs is a unified productivity suite designed to help individuals and teams work smarter, not harder.
+📝 Notes & Docs → Capture ideas, draft documents, and share knowledge in real time.
+✅ Tasks & To-dos → Organize projects, track progress, and never miss deadlines.
+📊 Databases & Tables → Manage information with flexible, powerful structures.
+📅 Calendars & Views → Visualize work with timelines, boards, or calendars.
+🧩 Custom Workspaces → Build wikis, knowledge hubs, or roadmaps tailored to your team.
 
 This is POC project for Go/Java Backend and ReactTS Frontend
 
