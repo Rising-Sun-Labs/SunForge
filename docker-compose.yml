@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  sunforge-backend:
+    build:
+      context: ./Sunforge-Backend/Sunforge-Backend # Path to Go Dockerfile
+      dockerfile: Dockerfile
+      target: dev # default target, overridden by profile
+    container_name: sunforge-backend
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./Sunforge-Backend/Sunforge-Backend:/app # Mount source code for hot reload
+    environment:
+      - PORT=5005
+    command: sh -c "go run ./..." # Run backend in dev mode for hot reload
+    networks:
+      - sunforge-network
+    restart: always
+    profiles: ["dev"]
+  sunforge-frontend:
+    build:
+      context: ./Sunforge-Frontend/Sunforge-Frontend # Path to Vite Dockerfile
+      dockerfile: Dockerfile
+      target: dev # default target, overriden by profile
+    container_name: sunforge-frontend
+    ports:
+      - "5010:5010" # vite dev server default port
+    volumes:
+      - ./Sunforge-Frontend/Sunforge-Frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5005 # Access backend
+    # depends_on:
+    #   - sunforge-backend
+    # command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - sunforge-network
+    restart: always
+    profiles: ["dev"]
+
+  #  ---  Production services ---
+  sunforge-backend-prod:
+    build:
+      context: ./Sunforge-Backend/Sunforge-Backend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: sunforge-backend-prod
+    ports:
+      - "5005:5005"
+    networks:
+      - sunforge-network
+    restart: always
+    profiles: ["prod"]
+  sunforge-frontend-prod:
+    build:
+      context: ./Sunforge-Frontend/Sunforge-Frontend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: sunforge-frontend-prod
+    ports:
+      - "5010:5010"
+    networks:
+      - sunforge-network
+    depends_on:
+      - sunforge-backend-prod
+    restart: always
+    profiles: ["prod"]
+
+networks:
+  sunforge-network:
+    driver: bridge

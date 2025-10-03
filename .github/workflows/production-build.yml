@@ -1,0 +1,33 @@
+name: Production Build
+
+on:
+  workflow_dispatch: # manually trigger
+
+jobs:
+  backend-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.24.2
+      - run: go mod download
+        working-directory: ./Sunforge-Backend/Sunforge-Backend
+      - run: CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o sunforge-backend ./...
+        working-directory: ./Sunforge-Backend/Sunforge-Backend
+      - name: Build Docker image
+        run: docker build -t sunforge-backend:prod ./Sunforge-Backend/Sunforge-Backend --target prod
+
+  frontend-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+      - run: npm ci
+        working-directory: ./Sunforge-Frontend/Sunforge-Frontend
+      - run: npm run build
+        working-directory: ./Sunforge-Frontend/Sunforge-Frontend
+      - name: Build Docker image
+        run: docker build -t sunforge-frontend:prod ./Sunforge-Frontend/Sunforge-Frontend --target prod
