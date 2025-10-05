@@ -1,8 +1,8 @@
 import React, {
   useCallback,
   useMemo,
-  useState,
   useRef,
+  useState,
   useEffect,
 } from "react";
 import { cx } from "@emotion/css";
@@ -10,7 +10,6 @@ import { BsActivity } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
 import { IoIosMailUnread } from "react-icons/io";
 import {
-  FaHome,
   FaChevronRight,
   FaChevronDown,
   FaChevronUp,
@@ -37,20 +36,7 @@ import {
 } from "react-icons/fa";
 import { MdHomeWork } from "react-icons/md";
 
-/**
- * Notion‑style Sidebar (high‑fidelity)
- * ------------------------------------
- * - Workspace switcher with collapsible details (members, settings, invite)
- * - Email row with account menu (workspace list, add/join, another account, logout)
- * - Sections: Favorites, Private, TeamSpaces (all recursive + collapsible)
- * - Quick actions: Quick Find, Updates
- * - Footer: Templates, Import, Settings & members, All Updates, Trash
- * - New Page button (sticky bottom)
- * - Context menu per page (Copy link, Duplicate, Rename, Move, Trash, Wiki, Open…)
- * - Inline rename on double‑click, keyboard nav, create‑inside via … button
- */
-
-// ---------- Types ----------
+/* ---------------- Types ---------------- */
 export type PageNode = {
   id: string;
   label: string;
@@ -58,21 +44,20 @@ export type PageNode = {
   icon?: React.ReactElement;
   children?: PageNode[];
   lastEditedBy?: string;
-  lastEditedAt?: string; // Human string or ISO
+  lastEditedAt?: string;
   isFavorite?: boolean;
   isWiki?: boolean;
 };
 
 export type SidebarTreeProps = {
-  roots: PageNode[]; // TeamSpaces
+  roots: PageNode[];
   privateRoots?: PageNode[];
   favoriteRoots?: PageNode[];
 
-  // Profile / workspace header
-  currentWorkspaceName?: string; // e.g., "Ankush Raj’s Workspace"
-  memberCount?: number; // e.g., 8
-  email?: string; // e.g., "ankush@sunforge.dev"
-  avatarUrl?: string; // optional avatar
+  currentWorkspaceName?: string;
+  memberCount?: number;
+  email?: string;
+  avatarUrl?: string;
 
   onNavigate?: (node: PageNode) => void;
   onCreateInside?: (parent: PageNode) => PageNode | void;
@@ -85,26 +70,80 @@ export type SidebarTreeProps = {
   onOpenInNewTab?: (node: PageNode) => void;
   onOpenInSidePeek?: (node: PageNode) => void;
   onToggleFavorite?: (node: PageNode, next: boolean) => void;
-  onCreateWorkspace?: () => void; // TeamSpaces header more
-  onJoinWorkspace?: () => void; // account menu
-  onCreateWorkspaceFromAccount?: () => void; // account menu
-  onSwitchWorkspace?: (name: string) => void; // account menu
+  onCreateWorkspace?: () => void;
+  onJoinWorkspace?: () => void;
+  onCreateWorkspaceFromAccount?: () => void;
+  onSwitchWorkspace?: (name: string) => void;
   onAnotherAccount?: () => void;
   onLogout?: () => void;
 };
 
-// ---------- Utilities ----------
+/* ---------------- Utils ---------------- */
 const formatEditedFooter = (by?: string, at?: string) =>
   `Last edited by ${by ?? "Username"} ${at ?? "Today at 12:20 PM"}`;
-
 const stop = (e: React.SyntheticEvent) => {
   e.preventDefault();
   e.stopPropagation();
 };
-
-// ---------- Context Menu ----------
-
 type MenuCoords = { x: number; y: number } | null;
+
+/* ---------------- Tooltip (simple) ---------------- */
+function Tooltip({
+  content,
+  children,
+}: {
+  content: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {children}
+      {open && (
+        <div className="absolute left-1/2 top-full z-40 -translate-x-1/2 whitespace-nowrap rounded-md bg-[#0f1318] px-2 py-1 text-xs text-zinc-200 shadow-lg mt-1 border border-[var(--sf-border)]">
+          {content}
+        </div>
+      )}
+    </span>
+  );
+}
+
+/* ---------------- Menus ---------------- */
+function Divider() {
+  return <div className="my-1 h-px bg-[var(--sf-border)]" />;
+}
+function Footer({ children }: { children: React.ReactNode }) {
+  return <div className="px-2 py-1 text-[11px] text-zinc-500">{children}</div>;
+}
+function MenuItem({
+  icon,
+  label,
+  onClick,
+  danger,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cx(
+        "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left outline-none",
+        "hover:bg-[var(--sf-hover)] focus:bg-[var(--sf-hover)]",
+        danger ? "text-red-400" : "text-zinc-200"
+      )}
+    >
+      <span className="opacity-90">{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
 
 type NodeMenuProps = {
   node: PageNode;
@@ -125,12 +164,11 @@ type NodeMenuProps = {
     >
   > & { onCreateInside: NonNullable<SidebarTreeProps["onCreateInside"]> };
 };
-
 function NodeMenu({ node, coords, onClose, actions }: NodeMenuProps) {
   if (!coords) return null;
   return (
     <div
-      className="fixed z-50 min-w-[240px] rounded-xl border border-zinc-800 bg-[#0D1014] shadow-2xl p-1 text-sm select-none"
+      className="fixed z-50 min-w-[240px] rounded-xl border border-[var(--sf-border)] bg-[var(--sf-panel)] shadow-2xl p-1 text-sm select-none"
       style={{ left: coords.x, top: coords.y }}
       onClick={(e) => e.stopPropagation()}
       onContextMenu={(e) => e.preventDefault()}
@@ -193,13 +231,13 @@ function NodeMenu({ node, coords, onClose, actions }: NodeMenuProps) {
       </Footer>
       <div className="pt-1" />
       <button
-        className="w-full mt-1 rounded-lg bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 py-2 text-xs"
+        className="w-full mt-1 rounded-lg bg-[var(--sf-hover)] hover:bg-[var(--sf-hover-strong)] text-zinc-300 py-2 text-xs"
         onClick={() => actions.onCreateInside(node)}
       >
         ... Create page inside
       </button>
       <button
-        className="w-full mt-1 rounded-lg bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 py-2 text-xs"
+        className="w-full mt-1 rounded-lg bg-[var(--sf-hover)] hover:bg-[var(--sf-hover-strong)] text-zinc-300 py-2 text-xs"
         onClick={onClose}
       >
         Close
@@ -208,65 +246,7 @@ function NodeMenu({ node, coords, onClose, actions }: NodeMenuProps) {
   );
 }
 
-function Divider() {
-  return <div className="my-1 h-px bg-zinc-800" />;
-}
-function Footer({ children }: { children: React.ReactNode }) {
-  return <div className="px-2 py-1 text-[11px] text-zinc-500">{children}</div>;
-}
-function MenuItem({
-  icon,
-  label,
-  onClick,
-  danger,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  danger?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cx(
-        "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left",
-        "hover:bg-zinc-900/80 focus:bg-zinc-900/80 outline-none",
-        danger ? "text-red-400" : "text-zinc-200"
-      )}
-    >
-      <span className="opacity-90">{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
-
-// ---------- Tooltip ----------
-function Tooltip({
-  content,
-  children,
-}: {
-  content: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <span
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      {children}
-      {open && (
-        <div className="absolute left-1/2 top-full z-40 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-zinc-200 shadow-lg mt-1 border border-zinc-800">
-          {content}
-        </div>
-      )}
-    </span>
-  );
-}
-
-// ---------- Tree Node (inline rename, collapsible) ----------
-
+/* ---------------- Tree Node ---------------- */
 type TreeNodeProps = {
   node: PageNode;
   depth: number;
@@ -277,6 +257,8 @@ type TreeNodeProps = {
   ) => void;
   onCreateInside?: SidebarTreeProps["onCreateInside"];
   onRename?: SidebarTreeProps["onRename"];
+  selectedId?: string;
+  setSelectedId?: (id: string) => void;
 };
 
 function TreeNode({
@@ -286,30 +268,40 @@ function TreeNode({
   requestContextMenu,
   onCreateInside,
   onRename,
+  selectedId,
+  setSelectedId,
 }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(true);
   const [hover, setHover] = useState(false);
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
 
   const hasChildren = (node.children?.length ?? 0) > 0;
+  const selected = selectedId === node.id;
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") setExpanded(true);
     if (e.key === "ArrowLeft") setExpanded(false);
-    if (e.key === "Enter" && !editing) onNavigate?.(node);
+    if (e.key === "Enter" && !editing) {
+      setSelectedId?.(node.id);
+      onNavigate?.(node);
+    }
   };
 
   return (
     <div className="select-none">
       <div
         className={cx(
-          "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-200 outline-none",
-          hover ? "bg-zinc-900/60" : "hover:bg-zinc-900/40"
+          "group flex items-center gap-2 rounded-md px-2 text-zinc-200 outline-none",
+          "h-[28px]",
+          selected
+            ? "bg-[var(--sf-hover)]"
+            : hover
+            ? "bg-[var(--sf-hover)]"
+            : "hover:bg-[var(--sf-hover)]"
         )}
         style={{ paddingLeft: depth * 12 + 8 }}
         tabIndex={0}
@@ -317,7 +309,12 @@ function TreeNode({
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onDoubleClick={() => setEditing(true)}
-        onClick={() => !editing && onNavigate?.(node)}
+        onClick={(e) => {
+          if (!editing) {
+            setSelectedId?.(node.id);
+            onNavigate?.(node);
+          }
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           requestContextMenu(node, { x: e.clientX, y: e.clientY });
@@ -325,7 +322,7 @@ function TreeNode({
       >
         {hasChildren ? (
           <button
-            className="shrink-0 rounded-md p-1 hover:bg-zinc-800"
+            className="shrink-0 rounded-md p-1 hover:bg-[var(--sf-hover-strong)]"
             onClick={(e) => {
               stop(e);
               setExpanded((s) => !s);
@@ -344,16 +341,15 @@ function TreeNode({
           <input
             ref={inputRef}
             defaultValue={node.label}
-            className="min-w-0 flex-1 bg-transparent outline-none border-b border-transparent focus:border-zinc-700"
+            className="min-w-0 flex-1 bg-transparent outline-none border-b border-transparent focus:border-[var(--sf-border)]"
             onBlur={(e) => {
               setEditing(false);
               const v = e.currentTarget.value.trim();
               if (v && v !== node.label) onRename?.(node, v);
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter")
                 (e.currentTarget as HTMLInputElement).blur();
-              }
               if (e.key === "Escape") {
                 (e.target as HTMLInputElement).value = node.label;
                 (e.currentTarget as HTMLInputElement).blur();
@@ -364,11 +360,10 @@ function TreeNode({
           <span className="truncate">{node.label}</span>
         )}
 
-        {/* Hover actions */}
         <div className="ml-auto hidden items-center gap-1 group-hover:flex">
           <Tooltip content="Create page inside">
             <button
-              className="rounded-md p-1 hover:bg-zinc-800"
+              className="rounded-md p-1 hover:bg-[var(--sf-hover-strong)]"
               onClick={(e) => {
                 stop(e);
                 onCreateInside?.(node);
@@ -379,7 +374,7 @@ function TreeNode({
           </Tooltip>
           <Tooltip content="More options">
             <button
-              className="rounded-md p-1 hover:bg-zinc-800"
+              className="rounded-md p-1 hover:bg-[var(--sf-hover-strong)]"
               onClick={(e) => {
                 stop(e);
                 requestContextMenu(node, {
@@ -397,7 +392,7 @@ function TreeNode({
       </div>
 
       {expanded && hasChildren && (
-        <div className="mt-0.5 space-y-0.5">
+        <div className="space-y-0.5">
           {node.children!.map((child) => (
             <TreeNode
               key={child.id}
@@ -407,6 +402,8 @@ function TreeNode({
               requestContextMenu={requestContextMenu}
               onCreateInside={onCreateInside}
               onRename={onRename}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
             />
           ))}
         </div>
@@ -415,124 +412,7 @@ function TreeNode({
   );
 }
 
-function TinyMenu({
-  coords,
-  onClose,
-  onCreate,
-}: {
-  coords: MenuCoords;
-  onClose: () => void;
-  onCreate: () => void;
-}) {
-  if (!coords) return null;
-  return (
-    <div
-      className="fixed z-50 min-w-[220px] rounded-xl border border-zinc-800 bg-[#0D1014] shadow-2xl p-1 text-sm select-none"
-      style={{ left: coords.x, top: coords.y }}
-      onClick={(e) => e.stopPropagation()}
-      onContextMenu={(e) => e.preventDefault()}
-    >
-      <button
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/80"
-        onClick={() => {
-          onCreate();
-          onClose();
-        }}
-      >
-        <span className="opacity-90">...</span>
-        <span>Create new TeamSpace</span>
-      </button>
-    </div>
-  );
-}
-
-// ---------- Profile Header & Account Menu (collapsible) ----------
-
-function ProfileHeader({
-  name,
-  memberCount,
-  email,
-  avatarUrl,
-  onOpenAccountMenu,
-}: {
-  name: string;
-  memberCount: number;
-  email: string;
-  avatarUrl?: string;
-  onOpenAccountMenu: (coords: MenuCoords) => void;
-}) {
-  const [collapsed, setCollapsed] = useState(false);
-  return (
-    <div className="mb-3 rounded-xl border border-zinc-800 bg-[#0C1013]/70 p-3">
-      <div className="flex items-center gap-3">
-        {avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={avatarUrl}
-            alt={name}
-            className="h-9 w-9 rounded-full object-cover"
-          />
-        ) : (
-          <FaUserCircle className="h-9 w-9 opacity-90" />
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <div className="truncate text-sm text-zinc-100 font-medium">
-              {name}
-            </div>
-            <Tooltip
-              content={
-                collapsed ? "Show workspace info" : "Hide workspace info"
-              }
-            >
-              <button
-                className="rounded-md p-1 hover:bg-zinc-800"
-                onClick={() => setCollapsed((s) => !s)}
-                aria-label="Toggle workspace info"
-              >
-                {collapsed ? <FaChevronUp /> : <FaChevronDown />}
-              </button>
-            </Tooltip>
-          </div>
-          {!collapsed && (
-            <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-400">
-              <span className="inline-flex items-center gap-1">
-                <FaUsers className="opacity-70" /> {memberCount} members
-              </span>
-              <span>•</span>
-              <button className="inline-flex items-center gap-1 hover:text-zinc-200">
-                <FaCog className="opacity-70" /> Settings
-              </button>
-              <span>•</span>
-              <button className="inline-flex items-center gap-1 hover:text-zinc-200">
-                <FaUserPlus className="opacity-70" /> Invite
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {!collapsed && (
-        <div className="mt-2 flex items-center justify-between rounded-lg bg-zinc-900/40 px-2 py-1.5 text-xs text-zinc-300">
-          <span className="truncate">{email}</span>
-          <button
-            className="rounded-md p-1 hover:bg-zinc-800"
-            onClick={(e) => {
-              const rect = (
-                e.currentTarget as HTMLButtonElement
-              ).getBoundingClientRect();
-              onOpenAccountMenu({ x: rect.left, y: rect.bottom + 6 });
-            }}
-            aria-label="Account menu"
-          >
-            <FaEllipsisH />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
+/* ---------------- Account Menu ---------------- */
 function AccountMenu({
   coords,
   onClose,
@@ -555,7 +435,7 @@ function AccountMenu({
   if (!coords) return null;
   return (
     <div
-      className="fixed z-50 min-w-[260px] rounded-xl border border-zinc-800 bg-[#0D1014] shadow-2xl p-1 text-sm select-none"
+      className="fixed z-50 min-w-[260px] rounded-xl border border-[var(--sf-border)] bg-[var(--sf-panel)] shadow-2xl p-1 text-sm select-none"
       style={{ left: coords.x, top: coords.y }}
       onClick={(e) => e.stopPropagation()}
       onContextMenu={(e) => e.preventDefault()}
@@ -566,7 +446,7 @@ function AccountMenu({
       {workspaces.map((w) => (
         <button
           key={w}
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/80"
+          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
           onClick={() => {
             onSelectWorkspace(w);
             onClose();
@@ -577,7 +457,7 @@ function AccountMenu({
         </button>
       ))}
       <button
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/80"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
         onClick={() => {
           onCreate();
           onClose();
@@ -588,7 +468,7 @@ function AccountMenu({
       </button>
       <Divider />
       <button
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/80"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
         onClick={() => {
           onJoin();
           onClose();
@@ -598,7 +478,7 @@ function AccountMenu({
         <span>Join TeamSpace</span>
       </button>
       <button
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/80"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
         onClick={() => {
           onAnotherAccount();
           onClose();
@@ -608,7 +488,7 @@ function AccountMenu({
         <span>Another account</span>
       </button>
       <button
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-red-400 hover:bg-zinc-900/80"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-red-400 hover:bg-[var(--sf-hover)]"
         onClick={() => {
           onLogout();
           onClose();
@@ -621,7 +501,118 @@ function AccountMenu({
   );
 }
 
-// ---------- Collapsible Section Wrapper ----------
+/* ---------------- Profile Header (popover; no layout shift) ---------------- */
+function ProfileHeader({
+  name,
+  memberCount,
+  email,
+  avatarUrl,
+  onOpenAccountMenu,
+}: {
+  name: string;
+  memberCount: number;
+  email: string;
+  avatarUrl?: string;
+  onOpenAccountMenu: (coords: MenuCoords) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<MenuCoords>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
+
+  const openPopover = () => {
+    const rect = anchorRef.current?.getBoundingClientRect();
+    if (rect) setCoords({ x: rect.left, y: rect.bottom + 6 });
+    setOpen(true);
+  };
+  const closePopover = () => {
+    setOpen(false);
+    setCoords(null);
+  };
+
+  return (
+    <div className="mb-3 rounded-xl border border-[var(--sf-border)] bg-[var(--sf-panel)]/90 p-3">
+      <div ref={anchorRef} className="flex items-center gap-3">
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={name}
+            className="h-9 w-9 rounded-full object-cover"
+          />
+        ) : (
+          <FaUserCircle className="h-9 w-9 opacity-90" />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <button
+              className="truncate text-left text-sm text-zinc-100 font-medium hover:text-zinc-50"
+              onClick={open ? closePopover : openPopover}
+            >
+              {name}
+            </button>
+            <Tooltip
+              content={open ? "Hide workspace info" : "Show workspace info"}
+            >
+              <button
+                className="rounded-md p-1 hover:bg-[var(--sf-hover)]"
+                onClick={open ? closePopover : openPopover}
+                aria-label="Toggle workspace info"
+              >
+                {open ? <FaChevronUp /> : <FaChevronDown />}
+              </button>
+            </Tooltip>
+          </div>
+        </div>
+      </div>
+
+      {open && coords && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={closePopover}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div
+            className="fixed z-50 w-[280px] rounded-xl border border-[var(--sf-border)] bg-[var(--sf-panel)] shadow-2xl p-3 text-sm select-none"
+            style={{ left: coords.x, top: coords.y }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 text-[12px] text-zinc-400">
+              <span className="inline-flex items-center gap-1">
+                <FaUsers className="opacity-70" /> {memberCount} members
+              </span>
+              <span>•</span>
+              <button className="inline-flex items-center gap-1 hover:text-zinc-200">
+                <FaCog className="opacity-70" /> Settings
+              </button>
+              <span>•</span>
+              <button className="inline-flex items-center gap-1 hover:text-zinc-200">
+                <FaUserPlus className="opacity-70" /> Invite
+              </button>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between rounded-lg bg-[var(--sf-hover)] px-2 py-1.5 text-xs text-zinc-300">
+              <span className="truncate">{email}</span>
+              <button
+                ref={moreBtnRef}
+                className="rounded-md p-1 hover:bg-[var(--sf-hover-strong)]"
+                onClick={() => {
+                  const rect = moreBtnRef.current?.getBoundingClientRect();
+                  if (rect)
+                    onOpenAccountMenu({ x: rect.left, y: rect.bottom + 6 });
+                }}
+                aria-label="Account menu"
+              >
+                <FaEllipsisH />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- Section ---------------- */
 function Section({
   title,
   children,
@@ -654,7 +645,6 @@ function Section({
     </div>
   );
 }
-
 function QuickItem({
   icon,
   label,
@@ -667,20 +657,18 @@ function QuickItem({
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40"
+      className="flex w-full items-center gap-2 rounded-md px-2 h-[28px] text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
     >
       <span className="opacity-80">{icon}</span>
       <span className="truncate">{label}</span>
     </button>
   );
 }
-
 function EmptyHint({ text }: { text: string }) {
   return <div className="px-2 py-3 text-xs text-zinc-500">{text}</div>;
 }
 
-// ---------- Sidebar (sections + footer + new page) ----------
-
+/* ---------------- Sidebar ---------------- */
 export function SidebarTree(props: SidebarTreeProps) {
   const [workspace, setWorkspace] = useState<PageNode[]>(props.roots);
   const [privates, setPrivates] = useState<PageNode[]>(
@@ -689,22 +677,19 @@ export function SidebarTree(props: SidebarTreeProps) {
   const [favorites, setFavorites] = useState<PageNode[]>(
     props.favoriteRoots ?? []
   );
-
   const [menuFor, setMenuFor] = useState<PageNode | null>(null);
   const [menuCoords, setMenuCoords] = useState<MenuCoords>(null);
-
   const [wsMoreCoords, setWsMoreCoords] = useState<MenuCoords>(null);
   const [accountCoords, setAccountCoords] = useState<MenuCoords>(null);
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
 
   const genId = useCallback(() => Math.random().toString(36).slice(2, 10), []);
 
-  // helpers
   const contains = (nodes: PageNode[], id: string): boolean => {
     const walk = (xs: PageNode[]): boolean =>
       xs.some((n) => n.id === id || (n.children && walk(n.children)));
     return walk(nodes);
   };
-
   const updateIn = (
     set: React.Dispatch<React.SetStateAction<PageNode[]>>,
     id: string,
@@ -718,7 +703,6 @@ export function SidebarTree(props: SidebarTreeProps) {
       );
     set((r) => walk(r));
   };
-
   const insertChildIn = (
     set: React.Dispatch<React.SetStateAction<PageNode[]>>,
     parentId: string,
@@ -732,7 +716,6 @@ export function SidebarTree(props: SidebarTreeProps) {
       );
     set((r) => walk(r));
   };
-
   const removeIn = (
     set: React.Dispatch<React.SetStateAction<PageNode[]>>,
     id: string
@@ -762,21 +745,18 @@ export function SidebarTree(props: SidebarTreeProps) {
       : contains(privates, id)
       ? "private"
       : "favorites";
-
   const updateNode = (id: string, updater: (n: PageNode) => PageNode) => {
     const s = sectionOf(id);
     if (s === "teamspaces") return updateIn(setWorkspace, id, updater);
     if (s === "private") return updateIn(setPrivates, id, updater);
     return updateIn(setFavorites, id, updater);
   };
-
   const insertChild = (parentId: string, child: PageNode) => {
     const s = sectionOf(parentId);
     if (s === "teamspaces") return insertChildIn(setWorkspace, parentId, child);
     if (s === "private") return insertChildIn(setPrivates, parentId, child);
     return insertChildIn(setFavorites, parentId, child);
   };
-
   const removeNode = (id: string) => {
     const s = sectionOf(id);
     if (s === "teamspaces") return removeIn(setWorkspace, id);
@@ -841,16 +821,14 @@ export function SidebarTree(props: SidebarTreeProps) {
         return temp;
       },
     }),
-    [genId, insertChild, props, updateNode]
+    [genId, props]
   );
 
   const accountWorkspaces = ["Ankush Raj’s Workspace", "Design Lab"];
 
   return (
     <div className="relative w-full text-[13px] text-zinc-200">
-      {/* Scrollable content */}
       <div className="h-[calc(100vh-56px)] overflow-y-auto pr-1">
-        {/* Workspace header */}
         <ProfileHeader
           name={props.currentWorkspaceName ?? "Ankush Raj’s Workspace"}
           memberCount={props.memberCount ?? 12}
@@ -896,7 +874,6 @@ export function SidebarTree(props: SidebarTreeProps) {
           </div>
         )}
 
-        {/* Quick actions */}
         <Section title="Quick Find" defaultOpen>
           <QuickItem
             icon={<CiSearch />}
@@ -922,7 +899,6 @@ export function SidebarTree(props: SidebarTreeProps) {
           />
         </Section>
 
-        {/* Favorites */}
         <Section title="Favorites" defaultOpen>
           {(favorites.length ? favorites : props.favoriteRoots ?? []).map(
             (n) => (
@@ -934,15 +910,16 @@ export function SidebarTree(props: SidebarTreeProps) {
                 requestContextMenu={requestContextMenu}
                 onCreateInside={actions.onCreateInside}
                 onRename={actions.onRename}
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
               />
             )
           )}
           {!favorites.length && !props.favoriteRoots?.length && (
-            <EmptyHint text="No favorites yet. Right‑click any page → Add to Favorites." />
+            <EmptyHint text="No favorites yet. Right-click any page → Add to Favorites." />
           )}
         </Section>
 
-        {/* Private */}
         <Section title="Private" defaultOpen>
           {(privates.length ? privates : props.privateRoots ?? []).map((n) => (
             <TreeNode
@@ -953,6 +930,8 @@ export function SidebarTree(props: SidebarTreeProps) {
               requestContextMenu={requestContextMenu}
               onCreateInside={actions.onCreateInside}
               onRename={actions.onRename}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
             />
           ))}
           {!privates.length && !props.privateRoots?.length && (
@@ -960,13 +939,12 @@ export function SidebarTree(props: SidebarTreeProps) {
           )}
         </Section>
 
-        {/* TeamSpaces */}
         <Section
           title="TeamSpaces"
           rightAddon={
             <Tooltip content="More">
               <button
-                className="rounded-md p-1 hover:bg-zinc-800"
+                className="rounded-md p-1 hover:bg-[var(--sf-hover)]"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -991,6 +969,8 @@ export function SidebarTree(props: SidebarTreeProps) {
               requestContextMenu={requestContextMenu}
               onCreateInside={actions.onCreateInside}
               onRename={actions.onRename}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
             />
           ))}
         </Section>
@@ -1001,50 +981,38 @@ export function SidebarTree(props: SidebarTreeProps) {
             onClick={() => setWsMoreCoords(null)}
             onContextMenu={(e) => e.preventDefault()}
           >
-            <TinyMenu
-              coords={wsMoreCoords}
-              onClose={() => setWsMoreCoords(null)}
-              onCreate={() => {
-                if (props.onCreateWorkspace) props.onCreateWorkspace();
-                else console.log("Create new TeamSpace");
-              }}
-            />
+            <div
+              className="fixed z-50 min-w-[220px] rounded-xl border border-[var(--sf-border)] bg-[var(--sf-panel)] shadow-2xl p-1 text-sm select-none"
+              style={{ left: wsMoreCoords.x!, top: wsMoreCoords.y! }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-[var(--sf-hover)]"
+                onClick={() => {
+                  props.onCreateWorkspace
+                    ? props.onCreateWorkspace()
+                    : console.log("Create new TeamSpace");
+                  setWsMoreCoords(null);
+                }}
+              >
+                <span className="opacity-90">...</span>
+                <span>Create new TeamSpace</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Footer links */}
-        <div className="mt-2 border-t border-zinc-800 pt-2 space-y-1">
-          <QuickItem
-            icon={<FaCubes />}
-            label="Templates"
-            onClick={() => console.log("templates")}
-          />
-          <QuickItem
-            icon={<FaInbox />}
-            label="Import"
-            onClick={() => console.log("import")}
-          />
-          <QuickItem
-            icon={<FaCog />}
-            label="Settings & members"
-            onClick={() => console.log("settings & members")}
-          />
-          <QuickItem
-            icon={<BsActivity />}
-            label="All Updates"
-            onClick={() => console.log("all updates")}
-          />
-          <QuickItem
-            icon={<FaTrashAlt />}
-            label="Trash"
-            onClick={() => console.log("trash")}
-          />
+        <div className="mt-2 border-t border-[var(--sf-border)] pt-2 space-y-1">
+          <QuickItem icon={<FaCubes />} label="Templates" />
+          <QuickItem icon={<FaInbox />} label="Import" />
+          <QuickItem icon={<FaCog />} label="Settings & members" />
+          <QuickItem icon={<BsActivity />} label="All Updates" />
+          <QuickItem icon={<FaTrashAlt />} label="Trash" />
         </div>
       </div>
 
-      {/* Sticky new page */}
       <div className="absolute bottom-2 left-0 right-0 px-2">
-        <button className="flex w-full items-center gap-2 rounded-lg border border-zinc-800 bg-[#0C1013]/70 px-3 py-2 text-zinc-200 hover:bg-zinc-900/60">
+        <button className="flex w-full items-center gap-2 rounded-lg border border-[var(--sf-border)] bg-[var(--sf-panel)]/90 px-3 h-[36px] text-zinc-200 hover:bg-[var(--sf-hover)]">
           <FaPlus />
           <span>New page</span>
         </button>
@@ -1068,16 +1036,16 @@ export function SidebarTree(props: SidebarTreeProps) {
   );
 }
 
-// ---------- Example Usage ----------
+/* ---------------- Example (dev only) ---------------- */
 export default function ExampleSidebar() {
-  const teamSpaceData: PageNode[] = [
+  const data: PageNode[] = [
     {
       id: "ws-1",
       label: "Engineering",
       path: "/teamspaces/engineering",
       icon: <MdHomeWork />,
       lastEditedBy: "Ankush",
-      lastEditedAt: "Today at 12:20 PM",
+      lastEditedAt: "Today 12:20 PM",
       children: [
         {
           id: "pg-1",
@@ -1105,7 +1073,6 @@ export default function ExampleSidebar() {
       ],
     },
   ];
-
   const privateData: PageNode[] = [
     {
       id: "pv-1",
@@ -1128,7 +1095,6 @@ export default function ExampleSidebar() {
       children: [],
     },
   ];
-
   const favoriteData: PageNode[] = [
     {
       id: "fav-1",
@@ -1146,21 +1112,20 @@ export default function ExampleSidebar() {
       ],
     },
   ];
-
   return (
-    <div className="h-full w-[320px] overflow-hidden bg-[#0D1014] p-3">
+    <div className="h-full w-[320px] overflow-hidden bg-[var(--sf-bg)] p-3">
       <SidebarTree
-        roots={teamSpaceData}
+        roots={data}
         privateRoots={privateData}
         favoriteRoots={favoriteData}
         currentWorkspaceName="Ankush Raj’s Workspace"
         memberCount={18}
         email="ankush.raj@example.com"
         onNavigate={(n) => console.log("navigate", n)}
-        onCreateInside={(parent) => ({
+        onCreateInside={(p) => ({
           id: Math.random().toString(36).slice(2, 10),
           label: "Untitled",
-          path: parent.path + "/" + Math.random().toString(36).slice(2, 6),
+          path: p.path + "/" + Math.random().toString(36).slice(2, 6),
           children: [],
           lastEditedBy: "You",
           lastEditedAt: "Just now",

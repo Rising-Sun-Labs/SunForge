@@ -1,1 +1,23 @@
+/* src/index.css */
 @import "tailwindcss";
+
+:root {
+  /* Notion-like dark tokens (hand-tuned) */
+  --sf-bg: #0d1014;
+  --sf-panel: #0c1013;
+  --sf-border: #26272b;
+  --sf-text: #e6e7eb;
+  --sf-dim: #a6a7ab;
+  --sf-hover: #101317;
+  --sf-hover-strong: #0e1116;
+  --sf-primary: #6e6ff3;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  background: var(--sf-bg);
+  color: var(--sf-text);
+}
