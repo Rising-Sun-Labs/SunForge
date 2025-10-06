@@ -54,3 +54,13 @@ https://whimsical.com/notion-replica-QzJNQQLnNus4N5YGdDEpuF
 
 2. Production Mode(minimal multi-stage images)
    `docker-compose --profile prod up --build`
+
+## Backend: Run Locally
+
+cd sunforge-backend
+cp .env.example .env # tweak if needed
+docker compose up --build # starts postgres + API on :5005
+
+# health check
+
+curl localhost:5005/healthz

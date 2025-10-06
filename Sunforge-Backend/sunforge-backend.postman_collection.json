@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "Sunforge Backend API",
+    "_postman_id": "cb2e046a-1dbd-49c7-8b79-bd9111200e9a",
+    "description": "Postman collection to exercise the Sunforge Go backend (pages, sidebar, favorites).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/healthz",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "healthz"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sidebar \u2192 Get",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/sidebar?userId={{userId}}&workspaceId={{workspaceId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "sidebar"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            },
+            {
+              "key": "workspaceId",
+              "value": "{{workspaceId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Untitled from Postman\",\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"parentId\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/pages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pages"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 Update title",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Renamed via Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pages",
+            "{{pageId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 Delete (archive)",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pages",
+            "{{pageId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 Move",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"toParentId\": \"{{toParentId}}\",\n  \"beforeId\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/move",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pages",
+            "{{pageId}}",
+            "move"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 Resolve by path",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/pageByPath?path={{path}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pageByPath"
+          ],
+          "query": [
+            {
+              "key": "path",
+              "value": "{{path}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Page \u2192 List children",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/children",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pages",
+            "{{pageId}}",
+            "children"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Favorites \u2192 Add",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{baseUrl}}/api/favorites/{{pageId}}?userId={{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "favorites",
+            "{{pageId}}"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Favorites \u2192 Remove",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/favorites/{{pageId}}?userId={{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "favorites",
+            "{{pageId}}"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5005"
+    },
+    {
+      "key": "userId",
+      "value": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "key": "workspaceId",
+      "value": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    },
+    {
+      "key": "pageId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "toParentId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "path",
+      "value": "/me/welcome"
+    }
+  ]
+}
