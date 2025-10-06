@@ -3,19 +3,19 @@ import { cx } from "@emotion/css";
 import {
   FaChevronDown,
   FaChevronRight,
-  FaEllipsisH,
-  FaPlus,
-  FaRegStar,
-  FaStar,
   FaTrashAlt,
-  FaPen,
   FaExternalLinkAlt,
   FaFolderOpen,
   FaColumns,
+  FaHome,
 } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
 import { IoIosMailUnread } from "react-icons/io";
 import type { PageNode } from "../types";
+import { GiArtificialIntelligence } from "react-icons/gi";
+import { FaGear } from "react-icons/fa6";
+import { PiDotsThreeOutlineFill, PiNoteBlankThin } from "react-icons/pi";
+import { FiPlus } from "react-icons/fi";
 
 export type SidebarTreeProps = {
   roots: PageNode[];
@@ -44,56 +44,53 @@ function Section({
   title,
   children,
   right,
+  className,
 }: {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   right?: React.ReactNode;
+  className?: string;
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="mb-2">
-      <div className="flex items-center justify-between px-2 py-1">
+    <div className={`mb-2 ${className || ""}`}>
+      <div className="flex items-center justify-between py-1">
         <button
-          className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wide text-zinc-500 hover:text-zinc-300"
+          className="inline-flex items-center gap-2 rounded-lg text-sm tracking-wide text-zinc-500 hover:bg-zinc-900/40"
           onClick={() => setOpen((s) => !s)}
         >
-          {open ? (
-            <FaChevronDown className="opacity-70" />
-          ) : (
-            <FaChevronRight className="opacity-70" />
-          )}
-          <span>{title}</span>
+          <span className="text-[12px] ">{title}</span>
         </button>
         {right}
       </div>
-      {open && <div className="space-y-1 px-1">{children}</div>}
+      {open && <div className="space-y-1">{children}</div>}
     </div>
   );
 }
 
-function Tooltip({
-  content,
-  children,
-}: {
-  content: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const [o, setO] = useState(false);
-  return (
-    <span
-      className="relative"
-      onMouseEnter={() => setO(true)}
-      onMouseLeave={() => setO(false)}
-    >
-      {children}
-      {o && (
-        <div className="absolute left-1/2 top-full -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-zinc-200 shadow-lg mt-1 border border-zinc-800">
-          {content}
-        </div>
-      )}
-    </span>
-  );
-}
+// function Tooltip({
+//   content,
+//   children,
+// }: {
+//   content: React.ReactNode;
+//   children: React.ReactNode;
+// }) {
+//   const [o, setO] = useState(false);
+//   return (
+//     <span
+//       className="relative"
+//       onMouseEnter={() => setO(true)}
+//       onMouseLeave={() => setO(false)}
+//     >
+//       {children}
+//       {o && (
+//         <div className="absolute left-1/2 top-full -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-zinc-500 shadow-lg mt-1 border border-zinc-800">
+//           {content}
+//         </div>
+//       )}
+//     </span>
+//   );
+// }
 
 function Node({
   node,
@@ -119,7 +116,7 @@ function Node({
     <div className="select-none">
       <div
         className={cx(
-          "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-200 outline-none",
+          "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-500 outline-none hover:bg-zinc-900/40",
           hover ? "bg-zinc-900/60" : "hover:bg-zinc-900/40"
         )}
         style={{ paddingLeft: depth * 12 + 8 }}
@@ -129,67 +126,66 @@ function Node({
       >
         {hasChildren ? (
           <button
-            className="shrink-0 rounded-md p-1 hover:bg-zinc-800"
+            className="group shrink-0 rounded-md p-1 text-zinc-500 hover:bg-zinc-900/40 flex items-center gap-1"
             onClick={(e) => {
               stop(e);
               setOpen((s) => !s);
             }}
           >
-            {open ? <FaChevronDown /> : <FaChevronRight />}
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              {open ? <FaChevronDown /> : <FaChevronRight />}
+            </span>
           </button>
         ) : (
           <span className="w-6" />
         )}
-        {node.icon && <span className="opacity-80">{node.icon}</span>}
-        <span className="truncate" onClick={() => onNavigate(node)}>
-          {node.label}
-        </span>
-        <div className="ml-auto hidden items-center gap-1 group-hover:flex">
-          <Tooltip content="Favorite">
-            <button
-              className="rounded-md p-1 hover:bg-zinc-800"
-              onClick={(e) => {
-                stop(e);
-                onToggleFavorite(node, !node.isFavorite);
-              }}
-            >
-              {node.isFavorite ? <FaStar /> : <FaRegStar />}
+
+        {/* Node icon */}
+        {/* {node.icon ? (
+          <span className="opacity-80">{node.icon}</span>
+        ) : (
+          <PiNoteBlankThin className="text-sm" />
+        )} */}
+        {node.icon ? (
+          <span className="opacity-80">{node.icon}</span>
+        ) : (
+          <PiNoteBlankThin className="text-sm" />
+        )}
+        {/* <div className="flex items-center gap-2">
+          <span className="truncate" onClick={() => onNavigate(node)}>
+            {node.label}
+          </span>
+          <div className="flex pl-10">
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <PiDotsThreeOutlineFill className="text-lg" />
             </button>
-          </Tooltip>
-          <Tooltip content="New inside">
-            <button
-              className="rounded-md p-1 hover:bg-zinc-800"
-              onClick={(e) => {
-                stop(e);
-                onCreateInside(node);
-              }}
-            >
-              <FaPlus />
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <FiPlus className="text-lg" />
             </button>
-          </Tooltip>
-          <Tooltip content="Rename">
-            <button
-              className="rounded-md p-1 hover:bg-zinc-800"
-              onClick={(e) => {
-                stop(e);
-                const next = prompt("Rename", node.label);
-                if (next && next.trim()) onRename(node, next.trim());
-              }}
-            >
-              <FaPen />
+          </div>
+        </div>
+        <div className="ml-auto hidden items-center gap-1">
+          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+            <PiDotsThreeOutlineFill className="text-lg" />
+          </button>
+          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+            <FiPlus className="text-lg" />
+          </button>
+        </div> */}
+
+        <div className="flex flex-1 items-center justify-between">
+          <span className="truncate" onClick={() => onNavigate(node)}>
+            {node.label}
+          </span>
+          {/* buttons */}
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <PiDotsThreeOutlineFill className="text-lg" />
             </button>
-          </Tooltip>
-          <Tooltip content="Delete">
-            <button
-              className="rounded-md p-1 hover:bg-zinc-800 text-red-400"
-              onClick={(e) => {
-                stop(e);
-                onTrash(node);
-              }}
-            >
-              <FaTrashAlt />
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <FiPlus className="text-lg" />
             </button>
-          </Tooltip>
+          </div>
         </div>
       </div>
       {open && hasChildren && (
@@ -240,19 +236,30 @@ export default function SidebarTree(props: SidebarTreeProps) {
         </div>
       </div>
 
-      <Section title="Quick Find">
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <CiSearch />
-          Search
-        </button>
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <IoIosMailUnread />
-          Updates
-        </button>
-      </Section>
+      <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+        <CiSearch className="text-lg" />
+        Search
+      </button>
+      <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+        <FaHome className="text-lg" />
+        Home
+      </button>
+      {/* This AI symbol is temporary will be removeing later on */}
+      <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+        <GiArtificialIntelligence className="text-lg" />
+        Sunforge AI
+      </button>
+      <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+        <IoIosMailUnread className="text-lg" />
+        Inbox
+      </button>
 
+      <div className="p-2"></div>
       {hasFav && (
-        <Section title="Favorites">
+        <Section
+          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"
+          title="Favorites"
+        >
           {props.favoriteRoots!.map((n) => (
             <Node
               key={n.id}
@@ -268,7 +275,52 @@ export default function SidebarTree(props: SidebarTreeProps) {
         </Section>
       )}
 
-      <Section title="Private">
+      {/* <Section
+        className="gap-2 rounded-lg px-2 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"
+        title={
+          <div className="flex items-center justify-between w-full">
+            <span className="truncate text-sm font-medium text-zinc-500">
+              Private
+            </span>
+            <div className="flex items-center gap-2">
+              <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+                <PiDotsThreeOutlineFill className="text-lg" />
+              </button>
+              <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+                <FiPlus className="text-lg" />
+              </button>
+            </div>
+          </div>
+        }
+      >
+        {(props.privateRoots ?? []).map((n) => (
+          <Node
+            key={n.id}
+            node={n}
+            depth={0}
+            onNavigate={props.onNavigate}
+            onCreateInside={props.onCreateInside}
+            onRename={props.onRename}
+            onTrash={props.onTrash}
+            onToggleFavorite={props.onToggleFavorite}
+          />
+        ))}
+      </Section> */}
+
+      <Section
+        className="gap-2 rounded-lg px-2 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"
+        title="Private"
+        right={
+          <div className="flex items-center gap-2">
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <PiDotsThreeOutlineFill className="text-lg" />
+            </button>
+            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+              <FiPlus className="text-lg" />
+            </button>
+          </div>
+        }
+      >
         {(props.privateRoots ?? []).map((n) => (
           <Node
             key={n.id}
@@ -284,12 +336,8 @@ export default function SidebarTree(props: SidebarTreeProps) {
       </Section>
 
       <Section
+        className="gap-2 rounded-lg px-2 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"
         title="TeamSpaces"
-        right={
-          <button className="rounded-md p-1 hover:bg-zinc-800">
-            <FaEllipsisH />
-          </button>
-        }
       >
         {props.roots.map((n) => (
           <Node
@@ -306,20 +354,24 @@ export default function SidebarTree(props: SidebarTreeProps) {
       </Section>
 
       <div className="mt-2 border-t border-zinc-800 pt-2 space-y-1">
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <FaColumns />
+        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+          <FaGear className="text-sm" />
+          Settings
+        </button>
+        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
+          <FaColumns className="text-sm" />
           Templates
         </button>
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <FaFolderOpen />
+        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-500 hover:bg-zinc-900/40">
+          <FaFolderOpen className="text-sm" />
           Import
         </button>
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <FaExternalLinkAlt />
+        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-500 hover:bg-zinc-900/40">
+          <FaExternalLinkAlt className="text-sm" />
           All Updates
         </button>
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-200 hover:bg-zinc-900/40">
-          <FaTrashAlt />
+        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-zinc-500 hover:bg-zinc-900/40">
+          <FaTrashAlt className="text-sm" />
           Trash
         </button>
       </div>
