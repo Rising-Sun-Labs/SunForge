@@ -32,19 +32,20 @@
 //   );
 // }
 
+import type { PageDTO, PageNode, SidebarPayload } from "./types";
 import React, { useEffect, useState } from "react";
-import SunForgePageEditor from "./component/SunForgePageEditor";
-import SidebarTree from "./component/SidebarTree";
-import type { PageNode, SidebarPayload, PageDTO } from "./types";
 import {
-  getSidebar,
   createPage,
-  renamePage,
   deletePage,
+  getSidebar,
+  renamePage,
   toggleFavorite,
 } from "./api";
-import { MdHomeWork } from "react-icons/md";
+
 import { FaFolderOpen } from "react-icons/fa";
+import { MdHomeWork } from "react-icons/md";
+import SidebarTree from "./component/SidebarTree";
+import SunForgePageEditor from "./component/SunForgePageEditor";
 
 const USER_ID = "11111111-1111-1111-1111-111111111111";
 const WORKSPACE_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";

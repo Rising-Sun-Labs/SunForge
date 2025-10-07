@@ -1,6 +1,8 @@
 import {
   FaColumns,
   FaCopy,
+  FaExternalLinkAlt,
+  FaGlobe,
   FaLink,
   FaPen,
   FaRegStar,
@@ -11,8 +13,8 @@ import {
 import { cx } from "@emotion/css";
 
 export default function PageMenu({
-  x,
-  y,
+  // x,
+  // y,
   onFavorite,
   isFavorite,
   onCopyLink,
@@ -25,8 +27,8 @@ export default function PageMenu({
   lastEditedBy,
   lastEditedAt,
 }: {
-  x: number;
-  y: number;
+  // x?: number;
+  // y?: number;
   onFavorite: () => void;
   isFavorite: boolean;
   onCopyLink: () => void;
@@ -79,7 +81,20 @@ export default function PageMenu({
         action={onTrash}
         danger
       />
-      {/* <Row icon={<Fa />}/> */}
+
+      <div className="my-1 h-px bg-zinc-800" />
+      <Row icon={<FaGlobe />} label="Turn into wiki" action={() => {}} />
+      <div className="my-1 h-px bg-zinc-800" />
+      <Row
+        icon={<FaExternalLinkAlt />}
+        label="Open in new tab"
+        action={onOpenNew}
+      />
+      <Row icon={<FaColumns />} label="Open in side peek" action={onOpenPeek} />
+      <div className="my-1 h-px bg-zinc-800" />
+      <div className="px-2 py-1 text-[11px] text-zinc-500">
+        Last edited by {lastEditedBy} {lastEditedAt}
+      </div>
     </div>
   );
 }

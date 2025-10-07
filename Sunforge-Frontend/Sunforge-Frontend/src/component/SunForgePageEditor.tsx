@@ -2095,6 +2095,7 @@ import {
 import { GiArtificialIntelligence, GiPlayButton } from "react-icons/gi";
 import { LuColumns4, LuTableOfContents } from "react-icons/lu";
 import { MdEmojiSymbols, MdOutlineCallToAction } from "react-icons/md";
+import React, { useState } from "react";
 import { RiArrowDropRightFill, RiFormula } from "react-icons/ri";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 
@@ -2102,7 +2103,6 @@ import { CgCalendarDates } from "react-icons/cg";
 import { CiText } from "react-icons/ci";
 import { GoMention } from "react-icons/go";
 import { ImEmbed } from "react-icons/im";
-import React from "react";
 import { SiMermaid } from "react-icons/si";
 import { cx } from "@emotion/css";
 
@@ -2151,6 +2151,24 @@ export type Block = {
   children?: Block[];
   collapsed?: boolean;
 };
+
+type PageMeta = {
+  id: string;
+  icon?: string;
+  cover?: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+  properties?: Record<string, string | number | string[] | boolean>;
+  permissions?: {
+    visibility: "private" | "workspace" | "public";
+    editors?: string[];
+  };
+  parent?: { type: "page" | "database" | "root"; id?: string };
+};
+
 const uuid = () =>
   globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
 
@@ -2439,14 +2457,31 @@ export default function SunForgePageEditor({
   initialTitle?: string;
   onTitleChange?: (t: string) => void;
 }) {
+  const [meta, setMeta] = useState<PageMeta>({
+    id: uuid(),
+    title: "Untitled",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: "You",
+    updatedBy: "You",
+    icon: "🧭",
+    cover: "",
+    properties: {},
+    permissions: { visibility: "private" },
+    parent: { type: "root" },
+  });
   const [title, setTitle] = React.useState(initialTitle);
   const [blocks, setBlocks] = React.useState<Block[]>([
-    { id: uuid(), type: "text", text: "" },
+    { id: uuid(), type: "text", text: "Type '/' for commands. Add blocks" },
   ]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [slashPos, setSlashPos] = React.useState<{
     x: number;
     y: number;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [menuAnchor, setMenuAnchor] = useState<DOMRect | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [focusId, setFocusId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
