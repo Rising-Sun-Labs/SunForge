@@ -1,21 +1,22 @@
-import React, { useState } from "react";
-import { cx } from "@emotion/css";
 import {
   FaChevronDown,
   FaChevronRight,
-  FaTrashAlt,
+  FaColumns,
   FaExternalLinkAlt,
   FaFolderOpen,
-  FaColumns,
   FaHome,
+  FaTrashAlt,
 } from "react-icons/fa";
+import { PiDotsThreeOutlineFill, PiNoteBlankThin } from "react-icons/pi";
+import React, { useState } from "react";
+
 import { CiSearch } from "react-icons/ci";
+import { FaGear } from "react-icons/fa6";
+import { FiPlus } from "react-icons/fi";
+import { GiArtificialIntelligence } from "react-icons/gi";
 import { IoIosMailUnread } from "react-icons/io";
 import type { PageNode } from "../types";
-import { GiArtificialIntelligence } from "react-icons/gi";
-import { FaGear } from "react-icons/fa6";
-import { PiDotsThreeOutlineFill, PiNoteBlankThin } from "react-icons/pi";
-import { FiPlus } from "react-icons/fi";
+import { cx } from "@emotion/css";
 
 export type SidebarTreeProps = {
   roots: PageNode[];
@@ -119,14 +120,14 @@ function Node({
           "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-500 outline-none hover:bg-zinc-900/40",
           hover ? "bg-zinc-900/60" : "hover:bg-zinc-900/40"
         )}
-        style={{ paddingLeft: depth * 12 + 8 }}
+        style={{ paddingLeft: depth * 10 + 1 }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onDoubleClick={() => onNavigate(node)}
       >
         {hasChildren ? (
           <button
-            className="group shrink-0 rounded-md p-1 text-zinc-500 hover:bg-zinc-900/40 flex items-center gap-1"
+            className="group shrink-0 rounded-md text-zinc-500 hover:bg-zinc-900/40 flex items-center gap-1"
             onClick={(e) => {
               stop(e);
               setOpen((s) => !s);
@@ -141,37 +142,11 @@ function Node({
         )}
 
         {/* Node icon */}
-        {/* {node.icon ? (
-          <span className="opacity-80">{node.icon}</span>
-        ) : (
-          <PiNoteBlankThin className="text-sm" />
-        )} */}
         {node.icon ? (
           <span className="opacity-80">{node.icon}</span>
         ) : (
           <PiNoteBlankThin className="text-sm" />
         )}
-        {/* <div className="flex items-center gap-2">
-          <span className="truncate" onClick={() => onNavigate(node)}>
-            {node.label}
-          </span>
-          <div className="flex pl-10">
-            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
-              <PiDotsThreeOutlineFill className="text-lg" />
-            </button>
-            <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
-              <FiPlus className="text-lg" />
-            </button>
-          </div>
-        </div>
-        <div className="ml-auto hidden items-center gap-1">
-          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
-            <PiDotsThreeOutlineFill className="text-lg" />
-          </button>
-          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40">
-            <FiPlus className="text-lg" />
-          </button>
-        </div> */}
 
         <div className="flex flex-1 items-center justify-between">
           <span className="truncate" onClick={() => onNavigate(node)}>
@@ -226,8 +201,13 @@ export default function SidebarTree(props: SidebarTreeProps) {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium truncate">
-              {props.workspace.name}
+            <div className="flex items-center justify-between">
+              <span className="truncate text-sm font-medium" onClick={() => {}}>
+                {props.workspace.name}
+              </span>
+              <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
+                <PiDotsThreeOutlineFill className="text-lg" />
+              </button>
             </div>
             <div className="text-xs text-zinc-500 truncate">
               {props.workspace.email} • {props.workspace.memberCount} members
@@ -274,38 +254,6 @@ export default function SidebarTree(props: SidebarTreeProps) {
           ))}
         </Section>
       )}
-
-      {/* <Section
-        className="gap-2 rounded-lg px-2 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"
-        title={
-          <div className="flex items-center justify-between w-full">
-            <span className="truncate text-sm font-medium text-zinc-500">
-              Private
-            </span>
-            <div className="flex items-center gap-2">
-              <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
-                <PiDotsThreeOutlineFill className="text-lg" />
-              </button>
-              <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
-                <FiPlus className="text-lg" />
-              </button>
-            </div>
-          </div>
-        }
-      >
-        {(props.privateRoots ?? []).map((n) => (
-          <Node
-            key={n.id}
-            node={n}
-            depth={0}
-            onNavigate={props.onNavigate}
-            onCreateInside={props.onCreateInside}
-            onRename={props.onRename}
-            onTrash={props.onTrash}
-            onToggleFavorite={props.onToggleFavorite}
-          />
-        ))}
-      </Section> */}
 
       <Section
         className="gap-2 rounded-lg px-2 text-left text-sm font-medium text-zinc-500 hover:bg-zinc-900/40"

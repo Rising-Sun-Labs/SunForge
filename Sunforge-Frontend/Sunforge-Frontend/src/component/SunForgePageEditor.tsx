@@ -2062,38 +2062,54 @@
 //   );
 // }
 
-import React from "react";
-import { cx } from "@emotion/css";
 import {
-  FaBold,
-  FaItalic,
-  FaUnderline,
-  FaHighlighter,
-  FaAlignLeft,
   FaAlignCenter,
-  FaAlignRight,
   FaAlignJustify,
-  FaPlus,
-  FaHeading,
-  FaListUl,
-  FaListOl,
-  FaCheckSquare,
-  FaQuoteLeft,
-  FaMinus,
-  FaImage,
-  FaVideo,
-  FaMusic,
-  FaCode,
-  FaFile,
-  FaLink,
-  FaRobot,
+  FaAlignLeft,
+  FaAlignRight,
+  FaBold,
   FaBook,
-  FaChevronDown,
-  FaChevronRight,
+  FaCheckSquare,
+  FaCode,
+  FaDatabase,
+  FaFile,
+  FaHeading,
+  FaHighlighter,
+  FaImage,
+  FaItalic,
+  FaLink,
+  FaListOl,
+  FaListUl,
+  FaMarkdown,
+  FaMinus,
+  FaMusic,
+  FaPlus,
+  FaQuoteLeft,
+  FaRobot,
+  FaSyncAlt,
+  FaTable,
+  FaToggleOff,
+  FaUnderline,
+  FaVideo,
 } from "react-icons/fa";
+import { GiArtificialIntelligence, GiPlayButton } from "react-icons/gi";
+import { LuColumns4, LuTableOfContents } from "react-icons/lu";
+import { MdEmojiSymbols, MdOutlineCallToAction } from "react-icons/md";
+import React, { useState } from "react";
+import { RiArrowDropRightFill, RiFormula } from "react-icons/ri";
+import { TbColumns2, TbColumns3 } from "react-icons/tb";
+
+import { CgCalendarDates } from "react-icons/cg";
+import { CiText } from "react-icons/ci";
+import { GoMention } from "react-icons/go";
+import { ImEmbed } from "react-icons/im";
+import { SiMermaid } from "react-icons/si";
+import { cx } from "@emotion/css";
 
 export type BlockType =
   | "text"
+  | "page"
+  | "markdown"
   | "heading1"
   | "heading2"
   | "heading3"
@@ -2111,7 +2127,23 @@ export type BlockType =
   | "file"
   | "link"
   | "table"
-  | "page";
+  | "database"
+  | "tableofcontents"
+  | "equation"
+  | "breadcrumbs"
+  | "button"
+  | "synced"
+  | "column2"
+  | "column3"
+  | "column4"
+  | "column5"
+  | "mermaid"
+  | "ai"
+  | "embed"
+  | "mention"
+  | "date"
+  | "emoji"
+  | "inline-equation";
 export type Block = {
   id: string;
   type: BlockType;
@@ -2119,6 +2151,24 @@ export type Block = {
   children?: Block[];
   collapsed?: boolean;
 };
+
+type PageMeta = {
+  id: string;
+  icon?: string;
+  cover?: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+  properties?: Record<string, string | number | string[] | boolean>;
+  permissions?: {
+    visibility: "private" | "workspace" | "public";
+    editors?: string[];
+  };
+  parent?: { type: "page" | "database" | "root"; id?: string };
+};
+
 const uuid = () =>
   globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
 
@@ -2205,7 +2255,7 @@ function SlashMenu({
   );
   return (
     <div
-      className="fixed z-50 w-[420px] max-h-[420px] overflow-y-auto rounded-2xl border border-[var(--sf-border)] bg-[var(--sf-panel)] p-2 shadow-2xl"
+      className="fixed z-50 w-[420px] max-h-[420px] overflow-y-auto scroll-hidden rounded-2xl border border-[var(--sf-border)] bg-[var(--sf-panel)] p-2 shadow-2xl"
       style={{ left: x, top: y }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -2217,22 +2267,60 @@ function SlashMenu({
         Basic
       </div>
       <div className="grid grid-cols-2 gap-1">
+        <Item icon={<CiText />} label="Text" type="text" />
         <Item icon={<FaBook />} label="Page" type="page" />
+        <Item icon={<FaMarkdown />} label="Markdown" type="markdown" />
         <Item icon={<FaHeading />} label="Heading 1" type="heading1" />
         <Item icon={<FaHeading />} label="Heading 2" type="heading2" />
         <Item icon={<FaHeading />} label="Heading 3" type="heading3" />
         <Item icon={<FaListUl />} label="Bulleted list" type="bulleted" />
         <Item icon={<FaListOl />} label="Numbered list" type="numbered" />
         <Item icon={<FaCheckSquare />} label="To-do list" type="todo" />
-        <Item icon={<FaQuoteLeft />} label="Quote" type="quote" />
+        <Item icon={<FaToggleOff />} label="Toggle" type="toggle" />
         <Item icon={<FaMinus />} label="Divider" type="divider" />
+        <Item icon={<FaQuoteLeft />} label="Quote" type="quote" />
+        <Item icon={<MdOutlineCallToAction />} label="Callout" type="quote" />
         <Item icon={<FaImage />} label="Image" type="image" />
         <Item icon={<FaVideo />} label="Video" type="video" />
         <Item icon={<FaMusic />} label="Audio" type="audio" />
         <Item icon={<FaCode />} label="Code" type="code" />
         <Item icon={<FaFile />} label="File" type="file" />
+        <Item icon={<FaLink />} label="Link" type="link" />
+        <Item icon={<FaTable />} label="Table" type="table" />
+        <Item
+          icon={<LuTableOfContents />}
+          label="Table of contents"
+          type="tableofcontents"
+        />
+        <Item icon={<RiFormula />} label="Equation" type="equation" />
+        <Item
+          icon={<RiArrowDropRightFill />}
+          label="Breadcrumbs"
+          type="breadcrumbs"
+        />
+        <Item icon={<GiPlayButton />} label="Button" type="button" />
+        <Item icon={<TbColumns2 />} label="Column 2" type="column2" />
+        <Item icon={<TbColumns3 />} label="Column 3" type="column3" />
+        <Item icon={<LuColumns4 />} label="Column 4" type="column4" />
+        {/* <Item icon={<Columns5 />} label="Column 5" type="column5" /> */}
+        <Item icon={<CgCalendarDates />} label="Date" type="date" />
+        {/* Inline equation pending */}
+      </div>
+
+      <div className="px-2 py-1 text-[11px] uppercase tracking-wide text-zinc-500">
+        Advanced
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        <Item icon={<FaDatabase />} label="Database" type="database" />
+        <Item icon={<FaSyncAlt />} label="Sunced" type="synced" />
+        <Item icon={<SiMermaid />} label="Mermaid" type="mermaid" />
+        <Item icon={<ImEmbed />} label="Embed" type="embed" />
+        <Item icon={<GiArtificialIntelligence />} label="AI" type="ai" />
+        <Item icon={<GoMention />} label="Mention" type="mention" />
+        <Item icon={<MdEmojiSymbols />} label="Emoji" type="emoji" />
         <Item icon={<FaLink />} label="Link to page" type="link" />
       </div>
+      {/* Have to add remaining or addition options as well */}
       <div className="px-2 py-1 text-right text-[11px] text-zinc-500">
         Type on the page — press Esc to close
       </div>
@@ -2369,14 +2457,31 @@ export default function SunForgePageEditor({
   initialTitle?: string;
   onTitleChange?: (t: string) => void;
 }) {
+  const [meta, setMeta] = useState<PageMeta>({
+    id: uuid(),
+    title: "Untitled",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: "You",
+    updatedBy: "You",
+    icon: "🧭",
+    cover: "",
+    properties: {},
+    permissions: { visibility: "private" },
+    parent: { type: "root" },
+  });
   const [title, setTitle] = React.useState(initialTitle);
   const [blocks, setBlocks] = React.useState<Block[]>([
-    { id: uuid(), type: "text", text: "" },
+    { id: uuid(), type: "text", text: "Type '/' for commands. Add blocks" },
   ]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [slashPos, setSlashPos] = React.useState<{
     x: number;
     y: number;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [menuAnchor, setMenuAnchor] = useState<DOMRect | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [focusId, setFocusId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -2420,7 +2525,7 @@ export default function SunForgePageEditor({
   };
 
   return (
-    <div className="relative h-full overflow-y-auto px-10 py-8">
+    <div className="relative h-full overflow-y-auto px-40 py-8">
       <div className="h-40 w-full rounded-2xl border border-[var(--sf-border)] bg-gradient-to-br from-[#151a21] to-[#0c1013]" />
       <div className="mt-4 flex items-center gap-3">
         <button className="text-3xl" title="Change icon">
@@ -2463,7 +2568,7 @@ export default function SunForgePageEditor({
         ))}
         <div className="pt-4">
           <button
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--sf-border)] bg-[var(--sf-panel)] px-3 py-2 text-sm text-zinc-300 hover:bg-[var(--sf-hover)]"
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--sf-border)] bg-[var(--sf-panel)] px-3 py-2 text-sm text-zinc-300 hover:bg-[var(--sf-hover)] overflow-hidden"
             onClick={(e) => {
               const r = (e.target as HTMLElement).getBoundingClientRect();
               setSlashPos({ x: r.left, y: r.bottom + 6 });

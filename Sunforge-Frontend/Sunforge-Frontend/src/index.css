@@ -21,3 +21,12 @@ body {
   background: var(--sf-bg);
   color: var(--sf-text);
 }
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
