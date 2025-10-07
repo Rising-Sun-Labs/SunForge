@@ -1,51 +1,20 @@
-# Build 
-FROM golang:1.24.2 AS builder
+# Build
+FROM golang:1.24.2-alpine AS build
+WORKDIR /src
 
-# Set working directory
-WORKDIR /app
-
-# Copy only Go module files first for caching
-COPY go.mod go.sum ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy only the main source files (packages), ignoring Non-go files
-COPY ./ ./
-
-# Build all packages in the repo
-# -buildvcs=false speed up builds for very large repos
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping -buildvcs=false ./...
-
-# Final Stage
-FROM alpine:latest
-
-# Create non-root user 
-RUN adduser -D -u 1000 appuser
-USER appuser
-
-# Set working directory
-WORKDIR /home/appuser
-
-# Copy the binary from the builder
-COPY --from=builder /docker-gs-ping .
-
-# Expose application port
-EXPOSE 5005
-
-# Run the binary
-CMD [ "./docker-gs-ping" ]
-
-# Development stage:
-FROM golang:1.24.2 AS dev
-
-WORKDIR /app
+# Cache dependencies
 COPY go.mod go.sum ./
 RUN go mod download
+
+# Copy source and build
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/sunforge ./cmd/api
 
-# Expose port:
+# Run
+FROM gcr.io/distroless/base-debian12
+WORKDIR /app
+ENV HTTP_ADDR=:5005
+COPY --from=build /out/sunforge /app/sunforge
+COPY .env.example /app/.env.example
 EXPOSE 5005
-
-# Run in dev
-CMD [ "sh", "-c", "go run ./..." ]
+ENTRYPOINT ["/app/sunforge"]
