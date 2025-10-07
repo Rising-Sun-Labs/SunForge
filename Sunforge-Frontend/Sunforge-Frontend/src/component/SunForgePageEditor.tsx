@@ -2490,7 +2490,7 @@ export default function SunForgePageEditor({
   };
 
   return (
-    <div className="relative h-full overflow-y-auto px-10 py-8">
+    <div className="relative h-full overflow-y-auto px-40 py-8">
       <div className="h-40 w-full rounded-2xl border border-[var(--sf-border)] bg-gradient-to-br from-[#151a21] to-[#0c1013]" />
       <div className="mt-4 flex items-center gap-3">
         <button className="text-3xl" title="Change icon">
