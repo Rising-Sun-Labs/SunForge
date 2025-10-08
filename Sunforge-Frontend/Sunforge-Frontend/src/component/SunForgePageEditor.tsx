@@ -4658,7 +4658,7 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // FILE: src/component/SunForgePageEditor.tsx
 // ──────────────────────────────────────────────────────────────────────────────
-import React, { useEffect, useRef, useState } from "react";
+
 import {
   FaAlignCenter,
   FaAlignJustify,
@@ -4695,12 +4695,14 @@ import {
 import { GiArtificialIntelligence, GiPlayButton } from "react-icons/gi";
 import { LuColumns4, LuTableOfContents } from "react-icons/lu";
 import { MdEmojiSymbols, MdOutlineCallToAction } from "react-icons/md";
+import React, { useEffect, useRef, useState } from "react";
 import {
   RiArrowDropRightFill,
   RiDeleteBin6Line,
   RiFormula,
 } from "react-icons/ri";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
+
 import { CgCalendarDates } from "react-icons/cg";
 import { CiText } from "react-icons/ci";
 import { GoMention } from "react-icons/go";
@@ -5103,7 +5105,7 @@ function BlockInput({
             ref={attach as React.Ref<HTMLInputElement>}
             onFocus={onFocus}
             className="bg-transparent outline-none"
-            placeholder="Untitled"
+            placeholder="Welcome to Sunforge ☀️🔥"
             defaultValue={block.text}
             onBlur={onBlur}
           />
@@ -5240,9 +5242,9 @@ function CoverHeader({
   const currentVis = (meta.permissions?.visibility ?? "private") as Visibility;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-[var(--sf-border)]">
+    <div className="relative items-center justify-between w-full overflow-hidden rounded-2xl border border-[var(--sf-border)]">
       {/* Cover itself */}
-      <div className="h-40 w-full" style={coverStyle} />
+      <div className="h-30 w-full" style={coverStyle} />
 
       {/* top-right controls */}
       <div className="absolute right-2 top-2 flex gap-2">
@@ -5313,7 +5315,7 @@ function CoverHeader({
       </div>
 
       {/* overlapping big icon */}
-      <div className="absolute -bottom-7 left-6">
+      {/* <div className="absolute -bottom-7 left-6">
         <button
           title="Change icon"
           className="grid h-14 w-14 place-items-center rounded-xl border border-[var(--sf-border)] bg-[#0d1014] text-3xl shadow"
@@ -5327,14 +5329,14 @@ function CoverHeader({
         >
           {meta.icon || "🧭"}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }
 
 // ───────── Main Editor ─────────
 export default function SunForgePageEditor({
-  initialTitle = "Untitled",
+  initialTitle = "Welcome to Sunforge ☀️🔥",
   onTitleChange,
 }: {
   initialTitle?: string;
@@ -5342,7 +5344,7 @@ export default function SunForgePageEditor({
 }) {
   const [meta, setMeta] = useState<PageMeta>({
     id: uuid(),
-    title: "Untitled",
+    title: "Welcome to Sunforge ☀️🔥",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     createdBy: "You",
@@ -5454,7 +5456,7 @@ export default function SunForgePageEditor({
     }));
 
   return (
-    <div className="relative h-full overflow-y-auto px-10 md:px-24 lg:px-40 py-8">
+    <div className="relative h-full overflow-y-auto px-10 md:px-20 lg:px-30 py-20">
       {/* Cover + Icon + Metadata (overlay on cover) */}
       <CoverHeader
         meta={meta}
@@ -5480,7 +5482,7 @@ export default function SunForgePageEditor({
         </button>
         <input
           className="flex-1 bg-transparent text-4xl font-bold outline-none placeholder-dim"
-          placeholder="Untitled"
+          placeholder="Welcome to Sunforge ☀️🔥"
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);

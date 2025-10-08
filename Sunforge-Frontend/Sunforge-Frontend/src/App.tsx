@@ -33,7 +33,6 @@
 // }
 
 import type { PageDTO, PageNode, SidebarPayload } from "./types";
-import { useEffect, useState } from "react";
 import {
   createPage,
   deletePage,
@@ -41,6 +40,7 @@ import {
   renamePage,
   toggleFavorite,
 } from "./api";
+import { useEffect, useState } from "react";
 
 import { FaFolderOpen } from "react-icons/fa";
 import { MdHomeWork } from "react-icons/md";
@@ -102,7 +102,9 @@ export default function App() {
     avatarUrl: "",
   });
 
-  const [currentTitle, setCurrentTitle] = useState("Untitled");
+  const [currentTitle, setCurrentTitle] = useState(
+    "🙏 Welcome to Sunforge ☀️🔥"
+  );
 
   const reload = () => {
     getSidebar(USER_ID, WORKSPACE_ID)
