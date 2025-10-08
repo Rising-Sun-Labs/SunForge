@@ -102,7 +102,9 @@ export default function App() {
     avatarUrl: "",
   });
 
-  const [currentTitle, setCurrentTitle] = useState("Untitled");
+  const [currentTitle, setCurrentTitle] = useState(
+    "🙏 Welcome to Sunforge ☀️🔥"
+  );
 
   const reload = () => {
     getSidebar(USER_ID, WORKSPACE_ID)
