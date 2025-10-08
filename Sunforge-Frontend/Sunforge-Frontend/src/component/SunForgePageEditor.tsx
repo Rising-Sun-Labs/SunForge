@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// FILE: src/component/SunForgePageEditor.tsx
-// ──────────────────────────────────────────────────────────────────────────────
-
+// src/component/SunForgePageEditor.tsx
 import {
   FaAlignCenter,
   FaAlignJustify,
@@ -53,6 +50,7 @@ import { ImEmbed } from "react-icons/im";
 import { SiMermaid } from "react-icons/si";
 import { cx } from "@emotion/css";
 
+import CodeBlock from "./BlockActions/CodeBlock";
 export type BlockType =
   | "text"
   | "page"
@@ -98,6 +96,12 @@ export type Block = {
   text?: string;
   children?: Block[];
   collapsed?: boolean;
+  code?: {
+    language: string;
+    caption?: string;
+    wrap?: boolean;
+    showLineNumbers?: boolean;
+  };
 };
 
 type Visibility = "private" | "workspace" | "public";
@@ -325,11 +329,13 @@ function BlockInput({
   onChange,
   registerRef,
   onFocus,
+  onChangeCodeMeta,
 }: {
   block: Block;
   onChange: (t: string) => void;
   registerRef: (el: HTMLElement | null) => void;
   onFocus: () => void;
+  onChangeCodeMeta?: (delta: Partial<NonNullable<Block["code"]>>) => void;
 }) {
   const base = "w-full bg-transparent outline-none prose-input placeholder-dim";
   const onBlur = (
@@ -431,13 +437,16 @@ function BlockInput({
       return <div className="my-2 h-px bg-[var(--sf-border)]" />;
     case "code":
       return (
-        <textarea
-          ref={attach as React.Ref<HTMLTextAreaElement>}
-          onFocus={onFocus}
-          className="w-full rounded-lg border border-[var(--sf-border)] bg-[var(--sf-panel)] p-3 font-mono text-sm"
-          placeholder="Code…"
-          defaultValue={block.text}
-          onBlur={(e) => onChange(e.currentTarget.value)}
+        <CodeBlock
+          value={block.text ?? ""}
+          meta={{
+            language: block.code?.language ?? "Plain text",
+            caption: block.code?.caption ?? "",
+            wrap: block.code?.wrap ?? true,
+            showLineNumbers: block.code?.showLineNumbers ?? false,
+          }}
+          onChange={(next) => onChange(next)}
+          onMetaChange={(delta) => onChangeCodeMeta?.(delta)}
         />
       );
     case "page":
@@ -586,7 +595,6 @@ function CoverHeader({
 
   return (
     <div className="relative items-center justify-between w-full overflow-hidden rounded-2xl border border-[var(--sf-border)]">
-      {/* Cover itself */}
       <div className="h-30 w-full" style={coverStyle} />
 
       {/* top-right controls */}
@@ -620,7 +628,6 @@ function CoverHeader({
 
       {/* bottom overlay: metadata strip */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0">
-        {/* fade for contrast */}
         <div className="h-16 bg-gradient-to-t from-black/50 to-transparent" />
         <div className="pointer-events-auto px-4 pb-3">
           <div className="flex flex-wrap items-center gap-2 text-[12px] text-zinc-200 drop-shadow">
@@ -656,23 +663,6 @@ function CoverHeader({
           </div>
         </div>
       </div>
-
-      {/* overlapping big icon */}
-      {/* <div className="absolute -bottom-7 left-6">
-        <button
-          title="Change icon"
-          className="grid h-14 w-14 place-items-center rounded-xl border border-[var(--sf-border)] bg-[#0d1014] text-3xl shadow"
-          onClick={() => {
-            const emoji =
-              prompt("Pick an emoji for page icon:", meta.icon || "🧭") ||
-              meta.icon ||
-              "🧭";
-            onChangeIcon(emoji);
-          }}
-        >
-          {meta.icon || "🧭"}
-        </button>
-      </div> */}
     </div>
   );
 }
@@ -708,10 +698,8 @@ export default function SunForgePageEditor({
   } | null>(null);
   const [focusId, setFocusId] = React.useState<string | null>(null);
 
-  // refs for focusable controls in blocks
   const blockRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // focus on focusId change
   useEffect(() => {
     if (!focusId) return;
     const el = blockRefs.current[focusId];
@@ -721,7 +709,6 @@ export default function SunForgePageEditor({
     }
   }, [focusId]);
 
-  // global key handling for slash menu
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "/") {
@@ -732,7 +719,7 @@ export default function SunForgePageEditor({
       } else if (e.key === "Escape") {
         setSlashPos(null);
       } else if (e.key === "Enter" && slashPos) {
-        e.preventDefault(); // keep focus in same block; just close menu
+        e.preventDefault();
         setSlashPos(null);
       }
     };
@@ -742,13 +729,28 @@ export default function SunForgePageEditor({
 
   const insertAfterFocused = (t: BlockType) => {
     const newId = uuid();
+    const newBlock: Block =
+      t === "code"
+        ? {
+            id: newId,
+            type: "code",
+            text: "",
+            code: {
+              language: "Plain text",
+              caption: "",
+              wrap: true,
+              showLineNumbers: false,
+            },
+          }
+        : { id: newId, type: t, text: "" };
+
     setBlocks((prev) => {
       const id = focusId;
-      if (!id) return [...prev, { id: newId, type: t, text: "" }];
+      if (!id) return [...prev, newBlock];
       const idx = prev.findIndex((b) => b.id === id);
-      if (idx === -1) return [...prev, { id: newId, type: t, text: "" }];
+      if (idx === -1) return [...prev, newBlock];
       const next = [...prev];
-      next.splice(idx + 1, 0, { id: newId, type: t, text: "" });
+      next.splice(idx + 1, 0, newBlock);
       return next;
     });
     setFocusId(newId);
@@ -770,7 +772,41 @@ export default function SunForgePageEditor({
         updatedAt: new Date().toISOString(),
         updatedBy: "You",
       }));
+    } else {
+      setMeta((m) => ({
+        ...m,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "You",
+      }));
     }
+  };
+
+  const changeCodeMeta = (
+    id: string,
+    delta: Partial<NonNullable<Block["code"]>>
+  ) => {
+    setBlocks((prev) =>
+      prev.map((blk) =>
+        blk.id === id
+          ? {
+              ...blk,
+              code: {
+                language: "Plain text",
+                caption: "",
+                wrap: true,
+                showLineNumbers: false,
+                ...(blk.code ?? {}),
+                ...delta,
+              },
+            }
+          : blk
+      )
+    );
+    setMeta((m) => ({
+      ...m,
+      updatedAt: new Date().toISOString(),
+      updatedBy: "You",
+    }));
   };
 
   const handleCoverChange = (url: string) =>
@@ -800,7 +836,7 @@ export default function SunForgePageEditor({
 
   return (
     <div className="relative h-full overflow-y-auto px-10 md:px-20 lg:px-30 py-20">
-      {/* Cover + Icon + Metadata (overlay on cover) */}
+      {/* Cover + Icon + Metadata */}
       <CoverHeader
         meta={meta}
         onChangeCover={handleCoverChange}
@@ -808,7 +844,7 @@ export default function SunForgePageEditor({
         onChangeVisibility={handleVisibility}
       />
 
-      {/* Title row (icon overlaps, so add top spacing) */}
+      {/* Title row */}
       <div className="mt-10 flex items-center gap-3">
         <button
           className="text-3xl"
@@ -882,6 +918,7 @@ export default function SunForgePageEditor({
               registerRef={(el) => {
                 blockRefs.current[b.id] = el;
               }}
+              onChangeCodeMeta={(delta) => changeCodeMeta(b.id, delta)}
             />
           </div>
         ))}
