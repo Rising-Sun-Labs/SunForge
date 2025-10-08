@@ -33,7 +33,7 @@
 // }
 
 import type { PageDTO, PageNode, SidebarPayload } from "./types";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createPage,
   deletePage,
