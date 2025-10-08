@@ -460,7 +460,7 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // FILE: src/component/SidebarTree.tsx
 // ──────────────────────────────────────────────────────────────────────────────
-import React, { useEffect, useMemo, useState } from "react";
+
 import {
   FaChevronDown,
   FaChevronRight,
@@ -476,6 +476,8 @@ import {
   FaWikipediaW,
 } from "react-icons/fa";
 import { PiDotsThreeOutlineFill, PiNoteBlankThin } from "react-icons/pi";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { CiSearch } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
@@ -521,7 +523,9 @@ function useLocalStorage<T>(key: string, initial: T) {
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(v));
-    } catch {}
+    } catch {
+      console.log();
+    }
   }, [key, v]);
   return [v, setV] as const;
 }
@@ -593,10 +597,14 @@ function Node({
     <div className="select-none" onContextMenu={(e) => onOpenMenu(node, e)}>
       <div
         className={cx(
-          "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-500 outline-none hover:bg-zinc-900/40"
+          "group flex items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-500 outline-none hover:bg-zinc-900/40 text-[14px] font-semibold"
         )}
         style={{ paddingLeft: depth * 10 + 1 }}
         onDoubleClick={() => onNavigate(node)}
+        onClick={(e) => {
+          stop(e);
+          setExpanded((m) => ({ ...m, [node.id]: !m[node.id] }));
+        }}
       >
         {hasChildren ? (
           <button
@@ -607,7 +615,11 @@ function Node({
             }}
           >
             <span className="opacity-100 transition-opacity duration-200">
-              {open ? <FaChevronDown /> : <FaChevronRight />}
+              {open ? (
+                <FaChevronDown className="text-zinc-600" />
+              ) : (
+                <FaChevronRight className="text-zinc-900" />
+              )}
             </span>
           </button>
         ) : (
@@ -757,7 +769,6 @@ function NodeMenu({
     onSetAsTemplate?: (n: PageNode) => void;
   };
 }) {
-  if (!coords) return null;
   useEffect(() => {
     const onDoc = () => onClose();
     const onEsc = (e: KeyboardEvent) => {
@@ -770,6 +781,7 @@ function NodeMenu({
       document.removeEventListener("keydown", onEsc);
     };
   }, [onClose]);
+  if (!coords) return null;
   return (
     <div
       className="fixed z-50 min-w-[240px] rounded-xl border border-zinc-800 bg-[#0D1014] shadow-2xl p-1 text-sm select-none"
@@ -969,6 +981,11 @@ export default function SidebarTree(props: SidebarTreeProps) {
               setExpanded={setExpanded}
             />
           ))}
+          <div className="flex items-center gap-2 group">
+            <button className="flex items-center justify-center rounded-lg pl-5 opacity-0 group-hover:opacity-100 text-transparent group-hover:text-zinc-500 transition-opacity group-hover:font-semibold duration-200">
+              Add new page
+            </button>
+          </div>
         </Section>
       )}
 
@@ -980,7 +997,7 @@ export default function SidebarTree(props: SidebarTreeProps) {
             <button className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40">
               <PiDotsThreeOutlineFill className="text-lg" />
             </button>
-            <button
+            {/* <button
               className="flex items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/40"
               onClick={() =>
                 props.onCreateInside({
@@ -992,7 +1009,7 @@ export default function SidebarTree(props: SidebarTreeProps) {
               }
             >
               <FiPlus className="text-lg" />
-            </button>
+            </button> */}
           </div>
         }
       >
@@ -1011,9 +1028,27 @@ export default function SidebarTree(props: SidebarTreeProps) {
             setExpanded={setExpanded}
           />
         ))}
+        <div className="flex items-center gap-2 group">
+          <button
+            className="flex items-center justify-center rounded-lg pl-5 opacity-0 group-hover:opacity-100 text-transparent group-hover:text-zinc-500 transition-opacity group-hover:font-semibold group-hover: text-[12px] duration-200"
+            onClick={() => {}}
+          >
+            Add new page
+          </button>
+        </div>
       </Section>
 
-      <Section className="px-1" title="TeamSpaces">
+      <Section
+        className="px-1"
+        title="TeamSpaces"
+        right={
+          <div className="flex items-center">
+            <button className="items-center justify-center rounded-lg p-1 text-zinc-500 hover:bg-zinc-900/400">
+              <PiDotsThreeOutlineFill className="text-lg" />
+            </button>
+          </div>
+        }
+      >
         {teamTree.map((n) => (
           <Node
             key={n.id}
@@ -1029,6 +1064,11 @@ export default function SidebarTree(props: SidebarTreeProps) {
             setExpanded={setExpanded}
           />
         ))}
+        <div className="flex items-center gap-2 group" onClick={() => {}}>
+          <button className="flex items-center justify-center rounded-lg pl-5 opacity-0 group-hover:opacity-100 text-transparent group-hover:text-zinc-500 transition-opacity group-hover:font-semibold group-hover: text-[12px] duration-200">
+            Add new page
+          </button>
+        </div>
       </Section>
 
       <div className="mt-2 border-t border-zinc-800 pt-2 space-y-1">
