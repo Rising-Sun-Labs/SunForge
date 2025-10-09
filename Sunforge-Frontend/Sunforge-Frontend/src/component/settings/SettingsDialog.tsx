@@ -1,5 +1,5 @@
 // src/component/settings/SettingsDialog.tsx
-import React from "react";
+
 import {
   FaBell,
   FaCog,
@@ -14,23 +14,26 @@ import {
   FaPuzzlePiece,
   FaRobot,
   FaTimes,
+  FaTimesCircle,
   FaUser,
 } from "react-icons/fa";
-import SettingsDialogMenu from "./SettingsDialogMenu";
 import type { MenuGroup, SettingsDialogProps, SettingsKey } from "./types";
-import PreferencesPage from "./pages/PreferencesPage";
-import NotificationsPage from "./pages/NotificationsPage";
+
 import ConnectionsPage from "./pages/ConnectionsPage";
-import GeneralPage from "./pages/GeneralPage";
-import PeoplePage from "./pages/PeoplePage";
-import TeamspacesPage from "./pages/TeamspacesPage";
-import SecurityPage from "./pages/SecurityPage";
-import IdentityPage from "./pages/IdentityPage";
-import NotionAIPage from "./pages/SunforgeAIPage";
-import PublicPagesPage from "./pages/PublicPagesPage";
 import EmojiPage from "./pages/EmojiPage";
-import IntegrationsPage from "./pages/IntegrationsPage";
+import GeneralPage from "./pages/GeneralPage";
+import IdentityPage from "./pages/IdentityPage";
 import ImportPage from "./pages/ImportPage";
+import IntegrationsPage from "./pages/IntegrationsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import NotionAIPage from "./pages/SunforgeAIPage";
+import PeoplePage from "./pages/PeoplePage";
+import PreferencesPage from "./pages/PreferencesPage";
+import PublicPagesPage from "./pages/PublicPagesPage";
+import React from "react";
+import SecurityPage from "./pages/SecurityPage";
+import SettingsDialogMenu from "./SettingsDialogMenu";
+import TeamspacesPage from "./pages/TeamspacesPage";
 
 const GROUPS: MenuGroup[] = [
   {
@@ -104,7 +107,7 @@ export default function SettingsDialog({
           onClick={onClose}
           aria-label="Close"
         >
-          <FaTimes />
+          <FaTimesCircle className="bg-transparent text-zinc-400 hover:text-zinc-300 hover:bg-zinc-900 transition-colors duration-300 rounded-full" />
         </button>
 
         {/* Body: left menu + right content (full height, no top offset) */}

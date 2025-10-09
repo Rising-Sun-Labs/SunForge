@@ -1,13 +1,10 @@
 // src/component/SearchPopover.tsx
-import React from "react";
-import { cx } from "@emotion/css";
+
 import {
   FaCalendarAlt,
+  FaChevronRight as FaCaret,
   FaChevronLeft,
   FaChevronRight,
-  FaChevronRight as FaCaret,
-  FaClock,
-  FaExternalLinkAlt,
   FaFileAlt,
   FaFolderOpen,
   FaRegFile,
@@ -17,8 +14,11 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
+
 import { IoIosArrowDown } from "react-icons/io";
 import { PiDotsThreeOutlineFill } from "react-icons/pi";
+import React from "react";
+import { cx } from "@emotion/css";
 
 /* — Theme accents (Sunforge dark). Switch to amber if you want warmer chips. */
 const ACCENT = {
@@ -705,7 +705,7 @@ function UserBadge({ you }: { you?: boolean }) {
 function ResultGroup({ title, items }: { title: string; items: PageItem[] }) {
   return (
     <div className="mb-5">
-      <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
+      <div className="mb-2 text-xs font-semibold tracking-wide text-zinc-500">
         {title}
       </div>
       <div className="rounded-2xl">
@@ -722,13 +722,14 @@ function ResultGroup({ title, items }: { title: string; items: PageItem[] }) {
                 <span className="truncate font-medium text-zinc-100">
                   {it.title}
                 </span>
+                {it.path && (
+                  <div className="pl-7 text-[12px] text-zinc-500">
+                    <span className="opacity-60">—</span> {it.path}
+                  </div>
+                )}
               </div>
-              {it.path && (
-                <div className="pl-7 text-[12px] text-zinc-500">
-                  <span className="opacity-60">—</span> {it.path}
-                </div>
-              )}
             </div>
+
             {!!it.dateISO && (
               <span className="shrink-0 pl-2 text-[12px] text-zinc-500">
                 {fmtRel(it.dateISO)}
