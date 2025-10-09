@@ -7,7 +7,6 @@ by Rising Sun Labs is a unified productivity suite designed to help individuals 
 📅 Calendars & Views → Visualize work with timelines, boards, or calendars.
 🧩 Custom Workspaces → Build wikis, knowledge hubs, or roadmaps tailored to your team.
 
-This is POC project for Go/Java Backend and ReactTS Frontend
 
 ## Whiteboard tool used:
 
