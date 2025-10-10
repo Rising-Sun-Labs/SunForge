@@ -1,6 +1,7 @@
 // src/component/settings/pages/TeamspacesPage.tsx
-import React from "react";
-import { H1, Section, Row, Button } from "./_ui";
+
+import { Button, H1, Row, Section } from "./_ui";
+
 export default function TeamspacesPage() {
   return (
     <>

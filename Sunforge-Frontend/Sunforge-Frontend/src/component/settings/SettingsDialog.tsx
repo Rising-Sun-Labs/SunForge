@@ -62,7 +62,7 @@ const GROUPS: MenuGroup[] = [
   {
     title: "",
     items: [
-      { key: "ai", label: "Notion AI", icon: <FaRobot /> },
+      { key: "ai", label: "Sunforge AI", icon: <FaRobot /> },
       { key: "public", label: "Public pages", icon: <FaLink /> },
       { key: "emoji", label: "Emoji", icon: <FaLaugh /> },
       { key: "integrations", label: "Connections", icon: <FaPuzzlePiece /> },
@@ -97,13 +97,13 @@ export default function SettingsDialog({
 
       {/* Dialog (no sticky header) */}
       <div
-        className="absolute left-1/2 top-[6vh] flex h-[88vh] w/[min(1100px,94vw)] -translate-x-1/2 overflow-hidden rounded-2xl border-zinc-800 bg-[#0D1014] shadow-2xl"
+        className="absolute left-1/2 top-[6vh] flex h-[88vh] w-[min(1100px,95vw)] -translate-x-1/2 overflow-hidden rounded-2xl border-zinc-800 bg-[#0D1014] shadow-2xl"
         onMouseDown={(e) => e.stopPropagation()}
-        style={{ width: "min(1100px,94vw)" }}
+        style={{ width: "min(1400px,95vw)" }}
       >
         {/* Floating close button only */}
         <button
-          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-lg border-zinc-800 bg-[#0D1014]/90 text-zinc-400 backdrop-blur hover:bg-zinc-900 hover:text-zinc-200"
+          className="absolute right-10 top-3 z-10 grid h-8 w-8 place-items-center rounded-lg border-zinc-800 bg-[#0D1014]/90 text-zinc-400 backdrop-blur hover:bg-zinc-900 hover:text-zinc-200"
           onClick={onClose}
           aria-label="Close"
         >

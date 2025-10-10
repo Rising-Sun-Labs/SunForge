@@ -1,5 +1,5 @@
 // src/component/settings/pages/PreferencesPage.tsx
-import React from "react";
+
 import {
   Button,
   Divider,
@@ -11,19 +11,36 @@ import {
   Toggle,
 } from "./_ui";
 
+import React from "react";
+
 export default function PreferencesPage() {
   const [autoTZ, setAutoTZ] = React.useState(true);
   const [tz, setTZ] = React.useState("(GMT+05:30) Calcutta");
-  const [desktopOpen, setDesktopOpen] = React.useState(false);
   const [openOnStart, setOpenOnStart] = React.useState("Last visited page");
   const [viewHistory, setViewHistory] = React.useState(true);
   const [discover, setDiscover] = React.useState(true);
 
+  const [lang, setLang] = React.useState("English (US)");
   return (
     <>
       <H1>Preferences</H1>
-
       <Section title="">
+        <Row
+          title="Appearance"
+          desc={<Subtle>"Customize how Sunforge looks on your device"</Subtle>}
+          right={
+            <Select
+              value={openOnStart}
+              onChange={setOpenOnStart}
+              options={[
+                "Use default system setting",
+                "White",
+                "Dark",
+                "Custom",
+              ]}
+            />
+          }
+        />
         <Row
           title="Set timezone automatically using your location"
           desc="Reminders, notifications and emails are delivered based on your time zone."
@@ -47,27 +64,6 @@ export default function PreferencesPage() {
             </div>
           }
         />
-      </Section>
-
-      <Divider />
-
-      <H1>Desktop app</H1>
-      <Section title="">
-        <Row
-          title="Open links in desktop app"
-          desc={
-            <>
-              You must have the macOS app installed.
-              <br />
-              If installed, macOS will open links to Notion in the desktop app,
-              even if this setting is turned off.
-              <br />
-              To disable that behavior, enable “Open Notion links in browser” in
-              your app.
-            </>
-          }
-          right={<Toggle checked={desktopOpen} onChange={setDesktopOpen} />}
-        />
         <Row
           title="Open on start"
           desc="Choose what to show when Notion starts or when you switch workspaces."
@@ -79,11 +75,29 @@ export default function PreferencesPage() {
             />
           }
         />
-        <div className="mt-2 flex justify-end">
-          <Button>Set in app</Button>
-        </div>
       </Section>
-
+      <Section title="Langugage And Time">
+        <Row
+          title="Language"
+          right={
+            <Select
+              value={lang}
+              onChange={setLang}
+              options={["English (US)", "English (UK)", "Deutsch", "हिंदी"]}
+            />
+          }
+        />
+        <Row
+          title="Time zone"
+          right={
+            <Select
+              value={tz}
+              onChange={setTZ}
+              options={["(GMT+05:30) IST", "UTC", "PST", "CET"]}
+            />
+          }
+        />
+      </Section>
       <Divider />
 
       <H1>Privacy</H1>

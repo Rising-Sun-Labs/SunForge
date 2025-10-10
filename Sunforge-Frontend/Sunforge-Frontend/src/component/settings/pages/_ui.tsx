@@ -106,10 +106,11 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-2 py-1 text-sm text-zinc-200 focus:ring-1 focus:ring-sky-400/40"
+      className="rounded-lg bg-zinc-900 px-2 py-1 text-[15px] text-semibold text-zinc-200 focus:ring-1 focus:ring-sky-400/40 text-left
+"
     >
       {options.map((o) => (
-        <option key={o} value={o} className="bg-[#0D1014]">
+        <option key={o} value={o} className="bg-zinc-900">
           {o}
         </option>
       ))}
