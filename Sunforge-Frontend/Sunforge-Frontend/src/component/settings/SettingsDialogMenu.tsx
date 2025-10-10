@@ -1,6 +1,8 @@
 // src/component/settings/SettingsDialogMenu.tsx
-import { cx } from "@emotion/css";
+
 import type { MenuGroup, SettingsKey } from "./types";
+
+import { cx } from "@emotion/css";
 
 export default function SettingsDialogMenu({
   groups,

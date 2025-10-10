@@ -1,6 +1,14 @@
 // src/component/settings/pages/GeneralPage.tsx
 
-import { Divider, H1, ProfileFace, Row, Section, Select, Toggle } from "./_ui";
+import {
+  Divider,
+  H1,
+  LoggedInDevicesTable,
+  ProfileFace,
+  Row,
+  Section,
+  Toggle,
+} from "./_ui";
 
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import React from "react";
@@ -12,8 +20,6 @@ export default function GeneralPage({
   title?: string;
   subtitle?: string;
 }) {
-  const [lang, setLang] = React.useState("English (US)");
-  const [tz, setTz] = React.useState("(GMT+05:30) IST");
   const [isActive, setIsActive] = React.useState(false);
 
   return (
@@ -29,30 +35,6 @@ export default function GeneralPage({
       >
         Create your portrait
       </button>
-      <div className="pt-10">
-        <Section title="Langugage And Time">
-          <Row
-            title="Language"
-            right={
-              <Select
-                value={lang}
-                onChange={setLang}
-                options={["English (US)", "English (UK)", "Deutsch", "हिंदी"]}
-              />
-            }
-          />
-          <Row
-            title="Time zone"
-            right={
-              <Select
-                value={tz}
-                onChange={setTz}
-                options={["(GMT+05:30) IST", "UTC", "PST", "CET"]}
-              />
-            }
-          />
-        </Section>
-      </div>
       <div>
         <Section title="Account security">
           <Row
@@ -107,6 +89,7 @@ export default function GeneralPage({
             }
             value="Log out of all other active sessions on other devices besides this on"
           />
+          <LoggedInDevicesTable />
         </Section>
       </div>
       {subtitle && <div className="text-sm text-zinc-500">{subtitle}</div>}

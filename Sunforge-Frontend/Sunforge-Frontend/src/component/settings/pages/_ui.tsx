@@ -1,5 +1,16 @@
 // src/component/settings/pages/_ui.tsx
 
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+
 import React from "react";
 import { cx } from "@emotion/css";
 
@@ -106,10 +117,11 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-2 py-1 text-sm text-zinc-200 focus:ring-1 focus:ring-sky-400/40"
+      className="rounded-lg bg-zinc-900 px-2 py-1 text-[15px] text-semibold text-zinc-200 focus:ring-1 focus:ring-sky-400/40 text-left
+"
     >
       {options.map((o) => (
-        <option key={o} value={o} className="bg-[#0D1014]">
+        <option key={o} value={o} className="bg-zinc-900">
           {o}
         </option>
       ))}
@@ -194,5 +206,272 @@ export function ProfileFace({ profileName, profilePic }: ProfileFaceProps) {
   );
 }
 
-// list to show all th device logged in.
-// export function({}:{}){}
+type DeviceInformation = {
+  isCurrentDevice?: boolean;
+  deviceName: string;
+  lastActive: string;
+  location: string;
+};
+
+// dummy device information
+const devices: DeviceInformation[] = [
+  {
+    deviceName: "Windows Device",
+    isCurrentDevice: true,
+    lastActive: "Now",
+    location: "Chennai, IN-603 IN-IN, India",
+  },
+  {
+    deviceName: "Windows Device",
+    lastActive: "Yesterday at 1:24 PM",
+    location: "Chennai, IN-603 IN-IN, India",
+  },
+  {
+    deviceName: "Windows Device",
+    lastActive: "Jul 25, 2025, 1:44 PM",
+    location: "Bengaluru, IN-572, IN-KA, India",
+  },
+  {
+    deviceName: "macOS",
+    lastActive: "Jul 20, 2025, 11:40 PM",
+    location: "Bengaluru, Karnataka, India",
+  },
+];
+
+export function LoggedInDevicesTable() {
+  const [showAll, setShowAll] = React.useState(false);
+  const visibleDevices = showAll ? devices : devices.slice(0, 2);
+
+  return (
+    <TableContainer
+      component={Box}
+      className="rounded-xl border border-zinc-900 bg-transparent text-zinc-200"
+    >
+      <Table className="bg-transparent border-separate border-spacing-y-2">
+        <TableHead className="!bg-transparent">
+          <TableRow className="!bg-transparent">
+            <TableCell className="!bg-transparent !border-none !text-zinc-400 text-sm font-semibold px-3 py-2">
+              Device Name
+            </TableCell>
+            <TableCell className="!bg-transparent !border-none !text-zinc-400 text-sm font-semibold px-3 py-2">
+              Last Active
+            </TableCell>
+            <TableCell className="!bg-transparent !border-none !text-zinc-400 text-sm font-semibold px-3 py-2">
+              Location
+            </TableCell>
+            <TableCell className="!bg-transparent !border-none w-32 px-3 py-2" />
+          </TableRow>
+        </TableHead>
+
+        {/* Table Body */}
+        <TableBody>
+          {visibleDevices.map((d, idx) => (
+            <TableRow
+              key={idx}
+              className="rounded-lg border border-zinc-800 bg-zinc-900/40 text-sm text-zinc-200 hover:bg-zinc-900 transition-all"
+            >
+              <TableCell className="!bg-transparent !border-none px-3 py-2 align-middle">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-zinc-200">
+                    {d.deviceName}
+                  </span>
+                  {d.isCurrentDevice && (
+                    <span className="mt-0.5 text-sm text-blue-400">
+                      This Device
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+
+              <TableCell className="!bg-transparent !border-none px-3 py-2 align-middle">
+                <span className="text-zinc-300 font-semibold">
+                  {d.lastActive}
+                </span>
+              </TableCell>
+
+              <TableCell className="!bg-transparent !border-none px-3 py-2 align-middle">
+                <span className="text-zinc-300 font-semibold">
+                  {d.location}
+                </span>
+              </TableCell>
+
+              <TableCell
+                align="right"
+                className="!bg-transparent !border-none px-3 py-2 align-middle"
+              >
+                {!d.isCurrentDevice && (
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-md border border-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-900/60 hover:border-zinc-700 transition"
+                  >
+                    Log out
+                  </button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {/* Footer Toggle */}
+      <div className="px-4 py-2 text-left">
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="flex items-center gap-1 text-sm font-semibold text-zinc-400 hover:text-zinc-200 transition"
+        >
+          {showAll ? (
+            <>
+              <FiChevronUp className="text-lg" /> Show fewer devices
+            </>
+          ) : (
+            <>
+              <FiChevronDown className="text-lg" /> Load more devices
+            </>
+          )}
+        </button>
+      </div>
+    </TableContainer>
+  );
+}
+
+export type TabItem = {
+  key: string;
+  label: string;
+  count?: number;
+};
+
+// Tab bar
+export function TabBar({
+  items,
+  active,
+  onChange,
+}: {
+  items: TabItem[];
+  active: string;
+  onChange: (key: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-6 border-b border-zinc-900 px-2">
+      {items.map((t) => {
+        const isActive = t.key === active;
+        return (
+          <button
+            key={t.key}
+            onClick={() => onChange(t.key)}
+            className={
+              "relative -mb-px pb-3 text-sm font-semibold transition " +
+              (isActive
+                ? "text-zinc-200"
+                : "text-zinc-400 hover: text-zinc-200")
+            }
+          >
+            <span className="flex items-center gap-2">
+              {t.label}
+              {typeof t.count === "number" && (
+                <span
+                  className={
+                    "rounded-md px-1.5 py-0.5 text-xs " +
+                    (isActive
+                      ? "bg-zinc-800 text-zinc-200"
+                      : "bg-zinc-900 text-zinc-400")
+                  }
+                >
+                  {t.count}
+                </span>
+              )}
+            </span>
+            {isActive && (
+              <span className="absolute inset-x-0 -bottom-[1px] h-[2px] rounded bg-zinc-200" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// Search field
+export function SearchField({
+  value,
+  placeholder = "Search",
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <div className={"relative inline-flex items-center " + (className ?? "")}>
+      <svg
+        viewBox="0 0 24 24"
+        className="pointer-events-none absolute left-2 h-4 w-4 text-zinc-500"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 211-3.5-3.5" />
+      </svg>
+      <input
+        value={value}
+        onChange={(e) => e.target.value}
+        placeholder={placeholder}
+        className="w-56 rounded-lg border border-zinc-900 bg-zinc-900/40 pl-8 pr-3 py-1.5 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-sky-400/40"
+      />
+    </div>
+  );
+}
+
+// GuestsEmptyState
+export function GuestsEmptyState() {
+  return (
+    <div className="relative rounded-xl border border-dashed border-zinc-900 bg-zinc-950/20">
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        {/* Svg */}
+        <svg
+          viewBox="0 0 24 24"
+          className="mb-3 h-8 w-8 text-zinc-400"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        >
+          <circle cx="12" cy="7" r="3" />
+          <path d="M6 21c0-3.3 2.7-6 6-6" />
+          <path d="M19 10v6" />
+          <path d="M22 13h-6" />{" "}
+        </svg>
+        <div className="mb-2 text-[15px] font-semibold text-zinc-200">
+          No guests yet
+        </div>
+        <button className="rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 py-1.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-900">
+          Import contacts
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function MemberList() {
+  return (
+    <div className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-4 text-sm text-zinc-400">
+      Members list goes here...
+    </div>
+  );
+}
+
+export function GroupsEmpty() {
+  return (
+    <div className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-8 text-center text-sm text-zinc-400">
+      No groups yet.
+    </div>
+  );
+}
+
+export function ContactsEmpty() {
+  return (
+    <div className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-8 text-center text-sm text-zinc-400">
+      No contacts yet.
+    </div>
+  );
+}
