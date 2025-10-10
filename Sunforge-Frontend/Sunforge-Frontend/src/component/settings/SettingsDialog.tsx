@@ -13,6 +13,7 @@ import {
   FaPeopleArrows,
   FaPuzzlePiece,
   FaRobot,
+  FaTimes,
   FaTimesCircle,
   FaUser,
 } from "react-icons/fa";
