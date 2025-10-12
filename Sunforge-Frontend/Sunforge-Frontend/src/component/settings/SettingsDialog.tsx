@@ -97,7 +97,7 @@ export default function SettingsDialog({
 
       {/* Dialog (no sticky header) */}
       <div
-        className="absolute left-1/2 top-[6vh] flex h-[88vh] w-[min(1100px,95vw)] -translate-x-1/2 overflow-hidden rounded-2xl border-zinc-800 bg-[#0D1014] shadow-2xl"
+        className="absolute left-1/2 top-[6vh] flex h-[88vh] w-[min(1100px,94vw)] -translate-x-1/2 overflow-hidden rounded-2xl border-zinc-800 bg-[#0D1014] shadow-2xl"
         onMouseDown={(e) => e.stopPropagation()}
         style={{ width: "min(1400px,95vw)" }}
       >
